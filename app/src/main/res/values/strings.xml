@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Music Streamer</string>
+    <string name="online_offline">Offline mode:</string>
+    <string name="logo">logo</string>
+    <string name="start">START</string>
+    <string name="no_internet_conn">No internet connection.</string>
+    <string name="retry">retry</string>
+</resources>
