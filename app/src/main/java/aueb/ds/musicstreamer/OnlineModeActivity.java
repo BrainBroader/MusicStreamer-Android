@@ -4,15 +4,18 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -35,6 +38,7 @@ public class OnlineModeActivity extends Activity {
     private TextView finalResult;
     private ListView listView;
     private TextView resultFromServer;
+    private ArrayAdapter<String> arrayAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,7 +50,7 @@ public class OnlineModeActivity extends Activity {
         resultFromServer = (TextView) findViewById(R.id.resultFS);
 
         listView = findViewById(R.id.listview);
-        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, new ArrayList<String>());
+        arrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, new ArrayList<String>());
         listView.setAdapter(arrayAdapter);
 
     }
@@ -61,6 +65,20 @@ public class OnlineModeActivity extends Activity {
                 AsyncTaskRunner runner = new AsyncTaskRunner();
                 String artist_name = time.getText().toString();
                 runner.execute(artist_name);
+                listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        final String songname = arrayAdapter.getItem(position);
+                        view.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                Intent s = new Intent(v.getContext(), Player.class);
+                                s.putExtra("songname", songname);
+                                startActivityForResult(s, 0);
+                            }
+                        });
+                    }
+                });
             }
         });
     }
@@ -86,11 +104,11 @@ public class OnlineModeActivity extends Activity {
         protected String doInBackground(String... params) {
             //publishProgress("Searching..."); // Calls onProgressUpdate()
 
-            brokers_ip.add("192.168.1.11");
+            brokers_ip.add("192.168.1.6");
             brokers_ports.add(5056);
-            brokers_ip.add("192.168.1.11");
+            brokers_ip.add("192.168.1.6");
             brokers_ports.add(5057);
-            brokers_ip.add("192.168.1.11");
+            brokers_ip.add("192.168.1.6");
             brokers_ports.add(5058);
 
             Random r = new Random();
