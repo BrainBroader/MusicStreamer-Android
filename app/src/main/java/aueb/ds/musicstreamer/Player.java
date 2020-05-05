@@ -1,16 +1,19 @@
 package aueb.ds.musicstreamer;
 
 import android.app.Activity;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import java.io.IOException;
+
 public class Player extends Activity {
 
-    //mediaplayer or exoplayer
-
+    MediaPlayer player;
     TextView temp;
     Button play;
 
@@ -30,10 +33,15 @@ public class Player extends Activity {
     protected void onStart() {
         super.onStart();
 
+        player = MediaPlayer.create(this, R.raw.apex);
         play.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //play the song
+                if (player.isPlaying()) {
+                    player.pause();
+                } else {
+                    player.start();
+                }
             }
         });
     }

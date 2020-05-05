@@ -1,12 +1,12 @@
 package aueb.ds.musicstreamer;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -24,8 +24,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.lang.reflect.Array;
-import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -34,7 +32,7 @@ import java.util.Random;
 
 public class OnlineModeActivity extends Activity {
     private Button button;
-    private EditText time;
+    private EditText artistName;
     private TextView finalResult;
     private ListView listView;
     private TextView resultFromServer;
@@ -44,7 +42,7 @@ public class OnlineModeActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_online_mode);
-        time = (EditText) findViewById(R.id.in_time);
+        artistName = (EditText) findViewById(R.id.artistname);
         button = (Button) findViewById(R.id.btn_run);
         finalResult = (TextView) findViewById(R.id.tv_result);
         resultFromServer = (TextView) findViewById(R.id.resultFS);
@@ -58,21 +56,28 @@ public class OnlineModeActivity extends Activity {
     public void onStart() {
 
         super.onStart();
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
 
-                AsyncTaskRunner runner = new AsyncTaskRunner();
-                String artist_name = time.getText().toString();
-                runner.execute(artist_name);
-                listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        artistName.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                button.setOnClickListener(new View.OnClickListener() {
                     @Override
-                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        final String songname = arrayAdapter.getItem(position);
-                        view.setOnClickListener(new View.OnClickListener() {
+                    public void onClick(View v) {
+
+                        AsyncTaskRunner runner = new AsyncTaskRunner();
+                        String artist_name = artistName.getText().toString();
+                        runner.execute(artist_name);
+                        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                             @Override
-                            public void onClick(View v) {
-                                Intent s = new Intent(v.getContext(), Player.class);
+                            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                                final String songname = arrayAdapter.getItem(position);
+                                Intent s = new Intent(view.getContext(), Player.class);
                                 s.putExtra("songname", songname);
                                 startActivityForResult(s, 0);
                             }
@@ -81,6 +86,8 @@ public class OnlineModeActivity extends Activity {
                 });
             }
         });
+
+
     }
 
     private class AsyncTaskRunner extends AsyncTask<String, String, String> {
@@ -187,12 +194,12 @@ public class OnlineModeActivity extends Activity {
                     }
                     resp = art_name;
                     out.writeObject(art_name);
-
                     ArrayList<String> list = (ArrayList<String>) in.readObject();
                     resp = Integer.toString(list.size());
                     for (String a : list) {
                         publishProgress(a.substring(0, a.length() - 4));
                     }
+
 
 
 
