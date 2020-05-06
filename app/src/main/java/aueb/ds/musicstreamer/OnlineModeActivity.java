@@ -87,6 +87,7 @@ public class OnlineModeActivity extends Activity {
                                 String[] splited = iportname.split("\\s+");
                                 s.putExtra("IP", splited[0]);
                                 s.putExtra("PORT", splited[1]);
+                                s.putExtra("artist", splited[2]);
                                 startActivityForResult(s, 0);
                             }
                         });
@@ -145,7 +146,7 @@ public class OnlineModeActivity extends Activity {
 
             try {
                 String art_name = params[0];
-                Thread.sleep(1000);
+                //Thread.sleep(1000);
 
                 Socket requestSocket = null;
                 ObjectOutputStream out = null;
@@ -184,7 +185,7 @@ public class OnlineModeActivity extends Activity {
                     if (flag == true) {
 
                         String iportname = bl.get(art_name);
-                        resp = iportname;
+                        resp = iportname + " "+ art_name;
                         String[] splited = iportname.split("\\s+");
 
 
