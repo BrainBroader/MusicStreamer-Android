@@ -2,6 +2,7 @@ package aueb.ds.musicstreamer;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -9,6 +10,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -70,6 +72,8 @@ public class OnlineModeActivity extends Activity {
                     @Override
                     public void onClick(View v) {
 
+                        closeKeyboard();
+
                         AsyncTaskRunner runner = new AsyncTaskRunner();
                         String artist_name = artistName.getText().toString();
                         runner.execute(artist_name);
@@ -79,6 +83,10 @@ public class OnlineModeActivity extends Activity {
                                 final String songname = arrayAdapter.getItem(position);
                                 Intent s = new Intent(view.getContext(), Player.class);
                                 s.putExtra("songname", songname);
+                                String iportname = resultFromServer.getText().toString();
+                                String[] splited = iportname.split("\\s+");
+                                s.putExtra("IP", splited[0]);
+                                s.putExtra("PORT", splited[1]);
                                 startActivityForResult(s, 0);
                             }
                         });
@@ -86,8 +94,14 @@ public class OnlineModeActivity extends Activity {
                 });
             }
         });
+    }
 
-
+    private void closeKeyboard() {
+        View view = this.getCurrentFocus();
+        if (view != null) {
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
     }
 
     private class AsyncTaskRunner extends AsyncTask<String, String, String> {
@@ -102,20 +116,22 @@ public class OnlineModeActivity extends Activity {
         protected void onPreExecute() {
             adapter = (ArrayAdapter<String>) listView.getAdapter();
             adapter.clear();
-            /*progressDialog = ProgressDialog.show(OnlineModeActivity.this,
+            progressDialog = ProgressDialog.show(OnlineModeActivity.this,
                     "ProgressDialog",
-                    "Searching songs for artist "+time.getText().toString());*/
+                    "Searching songs for artist "+ artistName.getText().toString());
         }
 
         @Override
         protected String doInBackground(String... params) {
-            //publishProgress("Searching..."); // Calls onProgressUpdate()
+            publishProgress("Searching...", "Searching..."); // Calls onProgressUpdate()
 
-            brokers_ip.add("192.168.1.6");
+            //loadPorts("brokers1.txt", brokers_ip, brokers_ports);
+
+            brokers_ip.add("192.168.1.11");
             brokers_ports.add(5056);
-            brokers_ip.add("192.168.1.6");
+            brokers_ip.add("192.168.1.11");
             brokers_ports.add(5057);
-            brokers_ip.add("192.168.1.6");
+            brokers_ip.add("192.168.1.11");
             brokers_ports.add(5058);
 
             Random r = new Random();
@@ -155,60 +171,65 @@ public class OnlineModeActivity extends Activity {
                         inputs.add(artists.get(i).toLowerCase());
                     }*/
 
-
+                    boolean flag = false;
 
                     for (int i = 0; i < artists.size() ; i++) {
                         if ((artists.get(i).toLowerCase()).equals(art_name.toLowerCase())) {
                             art_name = artists.get(i);
+                            flag = true;
                             break;
                         }
                     }
 
-                    String iportname = bl.get(art_name);
+                    if (flag == true) {
 
-                    String[] splited = iportname.split("\\s+");
+                        String iportname = bl.get(art_name);
+                        resp = iportname;
+                        String[] splited = iportname.split("\\s+");
 
 
-                    if (!(splited[0].equals(IP) && (Integer.parseInt(splited[1]) == PORT))) {
-                        out.writeObject("yes");
-                        requestSocket.close();
-                        in.close();
-                        out.close();
+                        if (!(splited[0].equals(IP) && (Integer.parseInt(splited[1]) == PORT))) {
+                            out.writeObject("yes");
+                            requestSocket.close();
+                            in.close();
+                            out.close();
 
-                        //this.IP = splited[0];
-                        //this.PORT = Integer.parseInt(splited[1]);
+                            //this.IP = splited[0];
+                            //this.PORT = Integer.parseInt(splited[1]);
 
-                        IP = splited[0];
-                        PORT = Integer.parseInt(splited[1]);
-                        requestSocket = new Socket(IP, PORT);
+                            IP = splited[0];
+                            PORT = Integer.parseInt(splited[1]);
+                            requestSocket = new Socket(IP, PORT);
 
-                        out = new ObjectOutputStream(requestSocket.getOutputStream());
-                        in = new ObjectInputStream(requestSocket.getInputStream());
+                            out = new ObjectOutputStream(requestSocket.getOutputStream());
+                            in = new ObjectInputStream(requestSocket.getInputStream());
 
-                        out.writeObject("reconnect");
+                            out.writeObject("reconnect");
+
+                        } else {
+                            String exit = "no";
+                            out.writeObject(exit);
+                            out.flush();
+                        }
+                        //resp = art_name;
+                        out.writeObject(art_name);
+                        ArrayList<String> list = (ArrayList<String>) in.readObject();
+                        //resp = Integer.toString(list.size());
+                        for (String a : list) {
+                            publishProgress("Searching...", a.substring(0, a.length() - 4));
+                        }
 
                     } else {
-                        String exit = "no";
-                        out.writeObject(exit);
-                        out.flush();
+
+                        runOnUiThread(new Runnable(){
+
+                            @Override
+                            public void run(){
+                                Toast.makeText(getBaseContext(), "Cannot find this artist.",
+                                        Toast.LENGTH_LONG).show();
+                            }
+                        });
                     }
-                    resp = art_name;
-                    out.writeObject(art_name);
-                    ArrayList<String> list = (ArrayList<String>) in.readObject();
-                    resp = Integer.toString(list.size());
-                    for (String a : list) {
-                        publishProgress(a.substring(0, a.length() - 4));
-                    }
-
-
-
-
-
-                    //Log.e("ASYNCTASKLAB","Server>> " + art_name);
-
-
-                    //resp = Integer.toString(artists.size());
-
 
                 } catch (UnknownHostException unknownHost) {
                     System.err.println("You are trying to connect to an unknown host!");
@@ -224,7 +245,7 @@ public class OnlineModeActivity extends Activity {
                 }
             } catch (Exception e) {
                 e.printStackTrace();
-                resp = e.getMessage();
+                //resp = e.getMessage();
             }
             return resp;
         }
@@ -232,17 +253,20 @@ public class OnlineModeActivity extends Activity {
         @Override
         protected void onPostExecute(String result) {
             // execution of result of Long time consuming operation
-            //progressDialog.dismiss();
+            progressDialog.dismiss();
             finalResult.setText("Search Complete.");
             resultFromServer.setVisibility(View.VISIBLE);
-            listView.setVisibility(View.VISIBLE);
             resultFromServer.setText(result);
         }
 
         @Override
         protected void onProgressUpdate(String... text) {
-           // finalResult.setText(text[0]);
-           adapter.add(text[0]);
+            if (text[1] == "Searching...") {
+                finalResult.setText(text[0]);
+            } else {
+                adapter.add(text[1]);
+            }
+
         }
     }
 

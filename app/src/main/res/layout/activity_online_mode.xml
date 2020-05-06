@@ -10,9 +10,7 @@
         android:id="@+id/listview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/resultFS"
-        android:visibility="invisible"
-        tools:visibility="visible"/>
+        android:layout_below="@id/resultFS"/>
 
     <TextView
         android:id="@+id/tv_artist"
