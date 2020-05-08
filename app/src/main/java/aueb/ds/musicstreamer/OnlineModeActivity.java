@@ -29,8 +29,11 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.HashMap;
 import java.util.Random;
+
+import MusicFile.MusicFile;
 
 public class OnlineModeActivity extends Activity {
     private Button button;
@@ -75,8 +78,8 @@ public class OnlineModeActivity extends Activity {
                         closeKeyboard();
 
                         AsyncTaskRunner runner = new AsyncTaskRunner();
-                        String artist_name = artistName.getText().toString();
-                        runner.execute(artist_name);
+                        String artist = artistName.getText().toString();
+                        runner.execute(artist);
                         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                             @Override
                             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -117,7 +120,7 @@ public class OnlineModeActivity extends Activity {
             adapter = (ArrayAdapter<String>) listView.getAdapter();
             adapter.clear();
             progressDialog = ProgressDialog.show(OnlineModeActivity.this,
-                    "ProgressDialog",
+                    "Searching",
                     "Searching songs for artist "+ artistName.getText().toString());
         }
 
@@ -127,11 +130,11 @@ public class OnlineModeActivity extends Activity {
 
             //loadPorts("brokers1.txt", brokers_ip, brokers_ports);
 
-            brokers_ip.add("192.168.1.11");
+            brokers_ip.add("192.168.1.6");
             brokers_ports.add(5056);
-            brokers_ip.add("192.168.1.11");
+            brokers_ip.add("192.168.1.6");
             brokers_ports.add(5057);
-            brokers_ip.add("192.168.1.11");
+            brokers_ip.add("192.168.1.6");
             brokers_ports.add(5058);
 
             Random r = new Random();
@@ -171,17 +174,17 @@ public class OnlineModeActivity extends Activity {
                         inputs.add(artists.get(i).toLowerCase());
                     }*/
 
-                    boolean flag = false;
+                    boolean found = false;
 
                     for (int i = 0; i < artists.size() ; i++) {
                         if ((artists.get(i).toLowerCase()).equals(art_name.toLowerCase())) {
                             art_name = artists.get(i);
-                            flag = true;
+                            found = true;
                             break;
                         }
                     }
 
-                    if (flag == true) {
+                    if (found == true) {
 
                         String iportname = bl.get(art_name);
                         resp = iportname;
@@ -218,6 +221,18 @@ public class OnlineModeActivity extends Activity {
                         for (String a : list) {
                             publishProgress("Searching...", a.substring(0, a.length() - 4));
                         }
+
+                        //out.writeObject("A Waltz For Naseem.mp3");
+                        out.writeObject("Bleu.mp3");
+                        int chunk_size = (int) in.readObject();
+
+                        List<MusicFile> array = new ArrayList<>();
+
+                        for (int i = 0; i < chunk_size; i++) {
+                            MusicFile chunk = (MusicFile) in.readObject();
+                            array.add(chunk);
+                        }
+                        Log.e("chunks", String.valueOf(array.size()));
 
                     } else {
 

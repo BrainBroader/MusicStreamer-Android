@@ -1,4 +1,4 @@
-package aueb.ds.musicstreamer;
+package MusicFile;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MusicFile implements Serializable {
+
+    private static final long serialVersionUID = -8051146778562959215L;
 
     private String trackName;
     private String artistName;
