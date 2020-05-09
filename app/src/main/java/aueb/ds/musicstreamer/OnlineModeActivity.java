@@ -88,8 +88,11 @@ public class OnlineModeActivity extends Activity {
                                 s.putExtra("songname", songname);
                                 String iportname = resultFromServer.getText().toString();
                                 String[] splited = iportname.split("\\s+");
+                                int size = splited[0].length() + splited[1].length() + 2;
+                                iportname = iportname.substring(size);
                                 s.putExtra("IP", splited[0]);
                                 s.putExtra("PORT", splited[1]);
+                                s.putExtra("artist", iportname);
                                 startActivityForResult(s, 0);
                             }
                         });
@@ -130,11 +133,11 @@ public class OnlineModeActivity extends Activity {
 
             //loadPorts("brokers1.txt", brokers_ip, brokers_ports);
 
-            brokers_ip.add("192.168.1.6");
+            brokers_ip.add("192.168.1.7");
             brokers_ports.add(5056);
-            brokers_ip.add("192.168.1.6");
+            brokers_ip.add("192.168.1.7");
             brokers_ports.add(5057);
-            brokers_ip.add("192.168.1.6");
+            brokers_ip.add("192.168.1.7");
             brokers_ports.add(5058);
 
             Random r = new Random();
@@ -148,7 +151,7 @@ public class OnlineModeActivity extends Activity {
 
             try {
                 String art_name = params[0];
-                Thread.sleep(1000);
+                //Thread.sleep(1000);
 
                 Socket requestSocket = null;
                 ObjectOutputStream out = null;
@@ -187,7 +190,7 @@ public class OnlineModeActivity extends Activity {
                     if (found == true) {
 
                         String iportname = bl.get(art_name);
-                        resp = iportname;
+                        resp = iportname + " "+ art_name;
                         String[] splited = iportname.split("\\s+");
 
 
@@ -223,7 +226,7 @@ public class OnlineModeActivity extends Activity {
                         }
 
                         //out.writeObject("A Waltz For Naseem.mp3");
-                        out.writeObject("Bleu.mp3");
+                        /*out.writeObject("Bleu.mp3");
                         int chunk_size = (int) in.readObject();
 
                         List<MusicFile> array = new ArrayList<>();
@@ -232,8 +235,7 @@ public class OnlineModeActivity extends Activity {
                             MusicFile chunk = (MusicFile) in.readObject();
                             array.add(chunk);
                         }
-                        Log.e("chunks", String.valueOf(array.size()));
-
+                        Log.e("chunks", String.valueOf(array.size()));*/
                     } else {
 
                         runOnUiThread(new Runnable(){
