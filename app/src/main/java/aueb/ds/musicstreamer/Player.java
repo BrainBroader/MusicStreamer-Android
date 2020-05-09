@@ -1,11 +1,18 @@
 package aueb.ds.musicstreamer;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.media.AudioManager;
+import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -46,6 +53,10 @@ public class Player extends Activity {
         temp = findViewById(R.id.textView);
         play = findViewById(R.id.button);
         temp.setText(songname + " "+ IP + " " + PORT + " " + artist);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1000);
+        }
     }
 
     @Override
@@ -121,7 +132,11 @@ public class Player extends Activity {
                     for (int i = 0; i < chunk_size; i++) {
                         MusicFile chunk = (MusicFile) dis.readObject();
                         array.add(chunk);
+                        String path = input_song + "-chunk" + (i+1) + ".mp3";
+                        chunk.createMP3(getBaseContext(),chunk,path);
+
                     }
+
                     resp = Integer.toString(array.size());
                     Log.e("array.size()","Server>> " + array.size());
 

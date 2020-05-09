@@ -133,11 +133,11 @@ public class OnlineModeActivity extends Activity {
 
             //loadPorts("brokers1.txt", brokers_ip, brokers_ports);
 
-            brokers_ip.add("192.168.1.7");
+            brokers_ip.add("192.168.1.6");
             brokers_ports.add(5056);
-            brokers_ip.add("192.168.1.7");
+            brokers_ip.add("192.168.1.6");
             brokers_ports.add(5057);
-            brokers_ip.add("192.168.1.7");
+            brokers_ip.add("192.168.1.6");
             brokers_ports.add(5058);
 
             Random r = new Random();
