@@ -17,6 +17,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -40,6 +42,7 @@ public class Player extends Activity {
     String PORT;
     String songname;
     String artist;
+    ImageView coverart;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +55,7 @@ public class Player extends Activity {
         artist = b.getString("artist");
         temp = findViewById(R.id.textView);
         play = findViewById(R.id.button);
+        coverart = findViewById(R.id.cover);
         temp.setText(songname + " "+ IP + " " + PORT + " " + artist);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
@@ -135,6 +139,25 @@ public class Player extends Activity {
                         String path = input_song + "-chunk" + (i+1) + ".mp3";
                         chunk.createMP3(getBaseContext(),chunk,path);
 
+                        //taking the album cover from the first chunk
+                        if (i ==0) {
+                            android.media.MediaMetadataRetriever mmr = new MediaMetadataRetriever();
+                            mmr.setDataSource(getFilesDir().getPath() + "/" + path);
+                            byte[] data = mmr.getEmbeddedPicture();
+
+                            if (data != null) {
+                                final Bitmap cover = BitmapFactory.decodeByteArray(data, 0, data.length);
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        coverart.setImageBitmap(cover);
+                                        coverart.getLayoutParams().height = 500;
+                                        coverart.getLayoutParams().width = 500;
+
+                                    }
+                                });
+                            }
+                        }
                     }
 
                     resp = Integer.toString(array.size());
@@ -142,10 +165,8 @@ public class Player extends Activity {
 
 
                     /*MusicFile parse = new MusicFile();
-
                     System.out.println("Playing "+ input_song + "...");
                     String name = input_song.substring(0, input_song.length() - 4);
-
                     for (int i = 0; i < array.size(); i++) {
                         String path = name + "-chunk" + (i+1) + ".mp3";
                         parse.createMP3(array.get(i), System.getProperty("user.dir") + "\\created_songs\\" + path);
