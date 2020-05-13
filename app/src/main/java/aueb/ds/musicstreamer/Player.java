@@ -23,6 +23,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import MusicFile.MusicFile;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -35,14 +40,16 @@ import java.util.Random;
 
 public class Player extends Activity {
 
-    MediaPlayer player;
-    TextView temp;
-    Button play;
-    String IP;
-    String PORT;
-    String songname;
-    String artist;
-    ImageView coverart;
+    private MediaPlayer player;
+    private TextView temp;
+    private Button play;
+    private String IP;
+    private String PORT;
+    private String songname;
+    private String artist;
+    private ImageView coverart;
+    private ArrayList<File> chunkFiles;
+    private int i = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +65,9 @@ public class Player extends Activity {
         coverart = findViewById(R.id.cover);
         temp.setText(songname + " "+ IP + " " + PORT + " " + artist);
 
+        player = new MediaPlayer();
+        chunkFiles = new ArrayList<>();
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1000);
         }
@@ -70,7 +80,49 @@ public class Player extends Activity {
         AsyncClient runner = new AsyncClient();
         runner.execute(artist, songname, PORT, IP);
 
-        player = MediaPlayer.create(this, R.raw.apex);
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        if (!chunkFiles.isEmpty()) {
+            FileInputStream fis = null;
+            try {
+                fis = new FileInputStream(chunkFiles.get(i));
+                player.setDataSource(fis.getFD());
+                fis.close();
+                player.prepare();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            player.start();
+            player.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                @Override
+                public void onCompletion(MediaPlayer mp) {
+                    player.reset();
+                    i++;
+                    FileInputStream fis = null;
+                    try {
+                        fis = new FileInputStream(chunkFiles.get(i));
+                        Log.e("check","check1");
+                        player.setDataSource(fis.getFD());
+                        Log.e("check","check2");
+                        player.prepare();
+                        Log.e("check","check3");
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                    player.start();
+                }
+            });
+        }
+
         play.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -136,13 +188,25 @@ public class Player extends Activity {
                     for (int i = 0; i < chunk_size; i++) {
                         MusicFile chunk = (MusicFile) dis.readObject();
                         array.add(chunk);
-                        String path = input_song + "-chunk" + (i+1) + ".mp3";
-                        chunk.createMP3(getBaseContext(),chunk,path);
+                        String path = input_song + "-chunk" + i+1;
+
+                        File tempSongFile = File.createTempFile(path,"mp3",getCacheDir());
+                        tempSongFile.deleteOnExit();
+                        FileOutputStream fos = new FileOutputStream(tempSongFile);
+                        fos.write(chunk.getMusicFileExtract());
+                        fos.close();
+
+                        chunkFiles.add(tempSongFile);
+
+                        //chunk.createMP3(getBaseContext(),chunk,path);
 
                         //taking the album cover from the first chunk
-                        if (i ==0) {
+                        if (i == 0) {
                             android.media.MediaMetadataRetriever mmr = new MediaMetadataRetriever();
-                            mmr.setDataSource(getFilesDir().getPath() + "/" + path);
+                            //mmr.setDataSource(getFilesDir().getPath() + "/" + path);
+                            FileInputStream fis = new FileInputStream(tempSongFile);
+                            mmr.setDataSource(fis.getFD());
+                            fis.close();
                             byte[] data = mmr.getEmbeddedPicture();
 
                             if (data != null) {
@@ -153,7 +217,6 @@ public class Player extends Activity {
                                         coverart.setImageBitmap(cover);
                                         coverart.getLayoutParams().height = 500;
                                         coverart.getLayoutParams().width = 500;
-
                                     }
                                 });
                             }
@@ -162,20 +225,6 @@ public class Player extends Activity {
 
                     resp = Integer.toString(array.size());
                     Log.e("array.size()","Server>> " + array.size());
-
-
-                    /*MusicFile parse = new MusicFile();
-                    System.out.println("Playing "+ input_song + "...");
-                    String name = input_song.substring(0, input_song.length() - 4);
-                    for (int i = 0; i < array.size(); i++) {
-                        String path = name + "-chunk" + (i+1) + ".mp3";
-                        parse.createMP3(array.get(i), System.getProperty("user.dir") + "\\created_songs\\" + path);
-                    }*/
-
-
-                    //this.arts = new ArrayList<>();
-
-
 
                 } catch (UnknownHostException unknownHost) {
                     System.err.println("You are trying to connect to an unknown host!");
@@ -212,6 +261,57 @@ public class Player extends Activity {
                 finalResult.setText(text[0]);
             }*/
 
+        }
+    }
+
+    private void playChunks(int next) {
+        if (!chunkFiles.isEmpty()) {
+            FileInputStream fis = null;
+            //int i = 0;
+            try {
+                fis = new FileInputStream(chunkFiles.get(i));
+                player.setDataSource(fis.getFD());
+                player.prepare();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            player.start();
+            player.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                @Override
+                public void onCompletion(MediaPlayer mp) {
+                    player.reset();
+                    try {
+                        //player.setDataSource();
+                        player.prepare();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    player.setNextMediaPlayer(player);
+                    //playChunks(i+1);
+                }
+            });
+            player.start();
+//            player.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+//                @Override
+//                public void onCompletion(MediaPlayer mp) {
+//                    player.stop();
+//                    i++;
+//                    FileInputStream fis = null;
+//
+//                    try {
+//                        fis = new FileInputStream(chunkFiles.get(i));
+//                        player.setDataSource(fis.getFD());
+//                        player.prepare();
+//                    } catch (FileNotFoundException e) {
+//                        e.printStackTrace();
+//                    } catch (IOException e) {
+//                        e.printStackTrace();
+//                    }
+//                    player.start();
+//                }
+//            });
         }
     }
 }
