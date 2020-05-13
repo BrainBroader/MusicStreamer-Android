@@ -21,9 +21,12 @@ import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
@@ -131,14 +134,8 @@ public class OnlineModeActivity extends Activity {
         protected String doInBackground(String... params) {
             publishProgress("Searching...", "Searching..."); // Calls onProgressUpdate()
 
-            //loadPorts("brokers1.txt", brokers_ip, brokers_ports);
+            loadPorts(brokers_ip, brokers_ports);
 
-            brokers_ip.add("192.168.1.6");
-            brokers_ports.add(5056);
-            brokers_ip.add("192.168.1.6");
-            brokers_ports.add(5057);
-            brokers_ip.add("192.168.1.6");
-            brokers_ports.add(5058);
 
             Random r = new Random();
             int number = r.nextInt(brokers_ip.size());
@@ -287,24 +284,20 @@ public class OnlineModeActivity extends Activity {
         }
     }
 
-    public static void loadPorts(String data, ArrayList<String> brokers_ip, ArrayList<Integer> brokers_ports) {
-        File f = null;
+    public void loadPorts(ArrayList<String> brokers_ip, ArrayList<Integer> brokers_ports) {
+        InputStream f = null;
+        InputStreamReader isr = null;
         BufferedReader reader = null;
         String line;
 
+        f = getResources().openRawResource(R.raw.brokers1);
+        isr = new InputStreamReader(f);
+        reader = new BufferedReader(isr);
+
+
         try {
-            f = new File(data);
-        } catch (NullPointerException e) {
-            System.err.println("File not found.");
-
-        } try {
-            reader = new BufferedReader(new FileReader(f));
-        } catch (FileNotFoundException e) {
-            System.err.println("Error opening file!");
-
-        } try {
             line = reader.readLine();
-            while(line != null){
+            while (line != null) {
 
                 String[] splited = line.split("\\s+");
                 String ip = splited[0];
