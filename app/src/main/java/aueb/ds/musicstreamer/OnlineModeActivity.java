@@ -56,7 +56,7 @@ public class OnlineModeActivity extends Activity {
         resultFromServer = (TextView) findViewById(R.id.resultFS);
 
         listView = findViewById(R.id.listview);
-        arrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, new ArrayList<String>());
+        arrayAdapter = new ArrayAdapter<>(this, R.layout.listview_layout, R.id.listRaw, new ArrayList<String>());
         listView.setAdapter(arrayAdapter);
 
     }
@@ -136,7 +136,6 @@ public class OnlineModeActivity extends Activity {
 
             loadPorts(brokers_ip, brokers_ports);
 
-
             Random r = new Random();
             int number = r.nextInt(brokers_ip.size());
 
@@ -148,7 +147,6 @@ public class OnlineModeActivity extends Activity {
 
             try {
                 String art_name = params[0];
-                //Thread.sleep(1000);
 
                 Socket requestSocket = null;
                 ObjectOutputStream out = null;
@@ -168,11 +166,6 @@ public class OnlineModeActivity extends Activity {
 
                     ArrayList<String> artists = new ArrayList<>();
                     artists = (ArrayList<String>) in.readObject();
-
-                    /*ArrayList<String> inputs = new ArrayList<>();
-                    for (int i = 0; i < artists.size(); i++) {
-                        inputs.add(artists.get(i).toLowerCase());
-                    }*/
 
                     boolean found = false;
 
@@ -214,7 +207,7 @@ public class OnlineModeActivity extends Activity {
                             out.writeObject(exit);
                             out.flush();
                         }
-                        //resp = art_name;
+
                         out.writeObject(art_name);
                         ArrayList<String> list = (ArrayList<String>) in.readObject();
                         //resp = Integer.toString(list.size());
@@ -222,17 +215,6 @@ public class OnlineModeActivity extends Activity {
                             publishProgress("Searching...", a.substring(0, a.length() - 4));
                         }
 
-                        //out.writeObject("A Waltz For Naseem.mp3");
-                        /*out.writeObject("Bleu.mp3");
-                        int chunk_size = (int) in.readObject();
-
-                        List<MusicFile> array = new ArrayList<>();
-
-                        for (int i = 0; i < chunk_size; i++) {
-                            MusicFile chunk = (MusicFile) in.readObject();
-                            array.add(chunk);
-                        }
-                        Log.e("chunks", String.valueOf(array.size()));*/
                     } else {
 
                         runOnUiThread(new Runnable(){
@@ -269,7 +251,7 @@ public class OnlineModeActivity extends Activity {
             // execution of result of Long time consuming operation
             progressDialog.dismiss();
             finalResult.setText("Search Complete.");
-            resultFromServer.setVisibility(View.VISIBLE);
+            //resultFromServer.setVisibility(View.VISIBLE);
             resultFromServer.setText(result);
         }
 

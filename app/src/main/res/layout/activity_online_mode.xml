@@ -4,42 +4,46 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#000000"
     tools:context=".OnlineModeActivity">
 
     <ListView
         android:id="@+id/listview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/resultFS"/>
+        android:layout_below="@+id/tv_result"
+        />
 
     <TextView
         android:id="@+id/tv_artist"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
+        android:layout_centerHorizontal="true"
         android:layout_marginLeft="10dip"
         android:layout_marginTop="20dip"
         android:layout_marginRight="9dip"
         android:text="@string/artist"
-        android:textColor="#444444"
-        android:textSize="10pt" />
+        android:textColor="#f4f4f4"
+        android:textSize="10pt"
+        android:textStyle="bold"/>
 
     <EditText
         android:id="@+id/artistname"
-        android:layout_width="300dip"
-        android:layout_height="wrap_content"
-        android:layout_alignTop="@id/tv_artist"
-        android:layout_toRightOf="@id/tv_artist"
+        android:layout_width="fill_parent"
+        android:layout_height="40dp"
+        android:layout_below="@id/tv_artist"
+        android:layout_marginTop="10dp"
         android:background="@android:drawable/editbox_background"
+        android:layout_toLeftOf="@id/btn_run"
         android:inputType="text" />
 
     <Button
         android:id="@+id/btn_run"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/artistname"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="25dp"
+        android:layout_height="40dp"
+        android:layout_alignParentRight="true"
+        android:layout_marginTop="10dp"
+        android:layout_below="@id/tv_artist"
         android:text="@string/runasynctask" />
 
 
@@ -49,6 +53,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/btn_run"
         android:layout_centerHorizontal="true"
+        android:textColor="#f4f4f4"
         android:textSize="7pt" />
 
     <TextView
@@ -62,6 +67,7 @@
         android:textSize="36sp"
         android:textStyle="bold"
         android:visibility="invisible"
+        android:textColor="#f4f4f4"
         tools:visibility="invisible" />
 
 </RelativeLayout>

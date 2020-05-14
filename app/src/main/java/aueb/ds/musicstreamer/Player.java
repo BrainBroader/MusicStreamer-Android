@@ -42,6 +42,8 @@ public class Player extends Activity {
 
     private MediaPlayer player;
     private TextView temp;
+    private TextView art_name;
+    private TextView chunks_num;
     private Button play;
     private String IP;
     private String PORT;
@@ -61,9 +63,12 @@ public class Player extends Activity {
         PORT = b.getString("PORT");
         artist = b.getString("artist");
         temp = findViewById(R.id.textView);
+        art_name = findViewById(R.id.textView2);
+        chunks_num = findViewById(R.id.textView4);
         play = findViewById(R.id.button);
         coverart = findViewById(R.id.cover);
-        temp.setText(songname + " "+ IP + " " + PORT + " " + artist);
+        temp.setText(songname);
+        art_name.setText(artist);
 
         player = new MediaPlayer();
         chunkFiles = new ArrayList<>();
@@ -222,7 +227,6 @@ public class Player extends Activity {
                             }
                         }
                     }
-
                     resp = Integer.toString(array.size());
                     Log.e("array.size()","Server>> " + array.size());
 
@@ -250,9 +254,8 @@ public class Player extends Activity {
             // execution of result of Long time consuming operation
             //progressDialog.dismiss();
             //finalResult.setText("Search Complete.");
-            //resultFromServer.setVisibility(View.VISIBLE);
-            //resultFromServer.setText(result);
-            temp.setText(result);
+            chunks_num.setVisibility(View.VISIBLE);
+            chunks_num.setText(result);
         }
 
         @Override
