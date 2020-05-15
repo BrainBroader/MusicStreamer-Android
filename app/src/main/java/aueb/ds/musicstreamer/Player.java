@@ -15,6 +15,7 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.InputContentInfo;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -38,9 +39,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
-public class Player extends Activity {
+public class Player extends Activity  {
 
-    private MediaPlayer player;
+    private MediaPlayer currentPlayer;
+    private MediaPlayer nextPlayer;
     private TextView temp;
     private TextView art_name;
     private TextView chunks_num;
@@ -51,6 +53,7 @@ public class Player extends Activity {
     private String artist;
     private ImageView coverart;
     private ArrayList<File> chunkFiles;
+    private ArrayList<InputStreamDataSource> mds;
     private int i = 0;
 
     @Override
@@ -70,8 +73,8 @@ public class Player extends Activity {
         temp.setText(songname);
         art_name.setText(artist);
 
-        player = new MediaPlayer();
         chunkFiles = new ArrayList<>();
+        mds = new ArrayList<>();
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1000);
@@ -91,61 +94,34 @@ public class Player extends Activity {
             e.printStackTrace();
         }
 
-        if (!chunkFiles.isEmpty()) {
-            FileInputStream fis = null;
-            try {
-                fis = new FileInputStream(chunkFiles.get(i));
-                player.setDataSource(fis.getFD());
-                fis.close();
-                player.prepare();
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            player.start();
-            player.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-                @Override
-                public void onCompletion(MediaPlayer mp) {
-                    player.reset();
-                    i++;
-                    FileInputStream fis = null;
-                    try {
-                        fis = new FileInputStream(chunkFiles.get(i));
-                        Log.e("check","check1");
-                        player.setDataSource(fis.getFD());
-                        Log.e("check","check2");
-                        player.prepare();
-                        Log.e("check","check3");
-                    } catch (FileNotFoundException e) {
-                        e.printStackTrace();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-
-                    player.start();
-                }
-            });
+        currentPlayer = new MediaPlayer();
+        currentPlayer.setDataSource(mds.get(i));
+        try {
+            currentPlayer.prepare();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+        currentPlayer.start();
+        createNextPlayer();
 
         play.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (player.isPlaying()) {
-                    player.pause();
+                if (currentPlayer.isPlaying()) {
+                    currentPlayer.pause();
                 } else {
-                    player.start();
+                    currentPlayer.start();
                 }
             }
         });
     }
 
     private class AsyncClient extends AsyncTask<String, String, String> {
-        private ArrayList<Integer> brokers_ports = new ArrayList<>();
-        private ArrayList<String> brokers_ip = new ArrayList<>();
+        //private ArrayList<Integer> brokers_ports = new ArrayList<>();
+
+        //private ArrayList<String> brokers_ip = new ArrayList<>();
         private String resp;
         ProgressDialog progressDialog;
-
         @Override
         protected void onPreExecute() {
             /*progressDialog = ProgressDialog.show(Player.this,
@@ -200,6 +176,8 @@ public class Player extends Activity {
                         FileOutputStream fos = new FileOutputStream(tempSongFile);
                         fos.write(chunk.getMusicFileExtract());
                         fos.close();
+                        InputStreamDataSource isdt = new InputStreamDataSource(chunk.getMusicFileExtract());
+                        mds.add(isdt);
 
                         chunkFiles.add(tempSongFile);
 
@@ -265,56 +243,26 @@ public class Player extends Activity {
             }*/
 
         }
+
     }
 
-    private void playChunks(int next) {
-        if (!chunkFiles.isEmpty()) {
-            FileInputStream fis = null;
-            //int i = 0;
-            try {
-                fis = new FileInputStream(chunkFiles.get(i));
-                player.setDataSource(fis.getFD());
-                player.prepare();
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            player.start();
-            player.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+    private void createNextPlayer() {
+        try {
+            nextPlayer = new MediaPlayer();
+            nextPlayer.setDataSource(mds.get(++i));
+            nextPlayer.prepare();
+            currentPlayer.setNextMediaPlayer(nextPlayer);
+            currentPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                 @Override
                 public void onCompletion(MediaPlayer mp) {
-                    player.reset();
-                    try {
-                        //player.setDataSource();
-                        player.prepare();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    player.setNextMediaPlayer(player);
-                    //playChunks(i+1);
+                    mp.release();
+                    currentPlayer = nextPlayer;
+                    createNextPlayer();
                 }
             });
-            player.start();
-//            player.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-//                @Override
-//                public void onCompletion(MediaPlayer mp) {
-//                    player.stop();
-//                    i++;
-//                    FileInputStream fis = null;
-//
-//                    try {
-//                        fis = new FileInputStream(chunkFiles.get(i));
-//                        player.setDataSource(fis.getFD());
-//                        player.prepare();
-//                    } catch (FileNotFoundException e) {
-//                        e.printStackTrace();
-//                    } catch (IOException e) {
-//                        e.printStackTrace();
-//                    }
-//                    player.start();
-//                }
-//            });
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
+
 }
