@@ -1,30 +1,28 @@
 package aueb.ds.musicstreamer;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.media.AudioManager;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.MediaStore;
+import android.os.Environment;
 import android.util.Log;
 import android.view.View;
-import android.view.inputmethod.InputContentInfo;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import MusicFile.MusicFile;
+import androidx.annotation.RequiresApi;
 
+import MusicFile.MusicFile;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -34,10 +32,12 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.security.spec.EncodedKeySpec;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Random;
 
 public class Player extends Activity  {
 
@@ -45,8 +45,8 @@ public class Player extends Activity  {
     private MediaPlayer nextPlayer;
     private TextView temp;
     private TextView art_name;
-    private TextView chunks_num;
     private Button play;
+    private Button download;
     private String IP;
     private String PORT;
     private String songname;
@@ -54,6 +54,7 @@ public class Player extends Activity  {
     private ImageView coverart;
     private ArrayList<File> chunkFiles;
     private ArrayList<InputStreamDataSource> mds;
+    private  ArrayList<MusicFile> forMerge;
     private int i = 0;
 
     @Override
@@ -65,16 +66,18 @@ public class Player extends Activity  {
         IP = b.getString("IP");
         PORT = b.getString("PORT");
         artist = b.getString("artist");
+
         temp = findViewById(R.id.textView);
         art_name = findViewById(R.id.textView2);
-        chunks_num = findViewById(R.id.textView4);
         play = findViewById(R.id.button);
         coverart = findViewById(R.id.cover);
+        download = findViewById(R.id.button4);
         temp.setText(songname);
         art_name.setText(artist);
 
         chunkFiles = new ArrayList<>();
         mds = new ArrayList<>();
+        forMerge = new ArrayList<>();
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1000);
@@ -114,12 +117,21 @@ public class Player extends Activity  {
                 }
             }
         });
+
+        download.setOnClickListener(new View.OnClickListener() {
+            //@RequiresApi(api = Build.VERSION_CODES.O)
+            @Override
+            public void onClick(View v) {
+                try {
+                    download();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 
     private class AsyncClient extends AsyncTask<String, String, String> {
-        //private ArrayList<Integer> brokers_ports = new ArrayList<>();
-
-        //private ArrayList<String> brokers_ip = new ArrayList<>();
         private String resp;
         ProgressDialog progressDialog;
         @Override
@@ -171,25 +183,15 @@ public class Player extends Activity  {
                         array.add(chunk);
                         String path = input_song + "-chunk" + i+1;
 
-                        File tempSongFile = File.createTempFile(path,"mp3",getCacheDir());
-                        tempSongFile.deleteOnExit();
-                        FileOutputStream fos = new FileOutputStream(tempSongFile);
-                        fos.write(chunk.getMusicFileExtract());
-                        fos.close();
                         InputStreamDataSource isdt = new InputStreamDataSource(chunk.getMusicFileExtract());
                         mds.add(isdt);
-
-                        chunkFiles.add(tempSongFile);
-
+                        forMerge.add(chunk);
                         //chunk.createMP3(getBaseContext(),chunk,path);
 
                         //taking the album cover from the first chunk
                         if (i == 0) {
                             android.media.MediaMetadataRetriever mmr = new MediaMetadataRetriever();
-                            //mmr.setDataSource(getFilesDir().getPath() + "/" + path);
-                            FileInputStream fis = new FileInputStream(tempSongFile);
-                            mmr.setDataSource(fis.getFD());
-                            fis.close();
+                            mmr.setDataSource(isdt);
                             byte[] data = mmr.getEmbeddedPicture();
 
                             if (data != null) {
@@ -232,8 +234,8 @@ public class Player extends Activity  {
             // execution of result of Long time consuming operation
             //progressDialog.dismiss();
             //finalResult.setText("Search Complete.");
-            chunks_num.setVisibility(View.VISIBLE);
-            chunks_num.setText(result);
+            //chunks_num.setVisibility(View.VISIBLE);
+            //chunks_num.setText(result);
         }
 
         @Override
@@ -265,4 +267,34 @@ public class Player extends Activity  {
         }
     }
 
+    //@RequiresApi(api = Build.VERSION_CODES.O)
+    private void download() throws IOException {
+        if (isExternalStorageWritable()) {
+            File root = Environment.getExternalStorageDirectory();
+            File dir = new File(root.getAbsolutePath()+"/Music/Music Streamer");
+            if (!dir.exists()) {
+                dir.mkdir();
+            }
+
+            Path pathToFile = Paths.get(root.getAbsolutePath()+"/Music/Music Streamer/"+songname+".mp3");
+
+            if (Files.exists(pathToFile)) {
+                Toast.makeText(getBaseContext(), "Already downloaded.", Toast.LENGTH_LONG).show();
+            } else {
+                File mp3 = new File(dir, songname + ".mp3");
+                FileOutputStream out = new FileOutputStream(mp3);
+                for (int i = 0; i < forMerge.size(); i++) {
+                    out.write(forMerge.get(i).getMusicFileExtract());
+                }
+                out.close();
+                Toast.makeText(getBaseContext(), "Downloaded.", Toast.LENGTH_LONG).show();
+            }
+
+        }
+    }
+
+    public boolean isExternalStorageWritable() {
+        String state = Environment.getExternalStorageState();
+        return Environment.MEDIA_MOUNTED.equals(state);
+    }
 }
