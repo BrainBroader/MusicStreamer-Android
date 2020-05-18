@@ -181,12 +181,10 @@ public class Player extends Activity  {
                     for (int i = 0; i < chunk_size; i++) {
                         MusicFile chunk = (MusicFile) dis.readObject();
                         array.add(chunk);
-                        String path = input_song + "-chunk" + i+1;
 
                         InputStreamDataSource isdt = new InputStreamDataSource(chunk.getMusicFileExtract());
                         mds.add(isdt);
                         forMerge.add(chunk);
-                        //chunk.createMP3(getBaseContext(),chunk,path);
 
                         //taking the album cover from the first chunk
                         if (i == 0) {
@@ -267,7 +265,6 @@ public class Player extends Activity  {
         }
     }
 
-    //@RequiresApi(api = Build.VERSION_CODES.O)
     private void download() throws IOException {
         if (isExternalStorageWritable()) {
             File root = Environment.getExternalStorageDirectory();
@@ -276,9 +273,10 @@ public class Player extends Activity  {
                 dir.mkdir();
             }
 
-            Path pathToFile = Paths.get(root.getAbsolutePath()+"/Music/Music Streamer/"+songname+".mp3");
-
-            if (Files.exists(pathToFile)) {
+            String path = dir.getAbsolutePath()+"/"+ songname + ".mp3";
+            boolean exists = new File(path).exists();
+            Log.e("exists", String.valueOf(exists));
+            if (exists) {
                 Toast.makeText(getBaseContext(), "Already downloaded.", Toast.LENGTH_LONG).show();
             } else {
                 File mp3 = new File(dir, songname + ".mp3");
@@ -289,7 +287,6 @@ public class Player extends Activity  {
                 out.close();
                 Toast.makeText(getBaseContext(), "Downloaded.", Toast.LENGTH_LONG).show();
             }
-
         }
     }
 
