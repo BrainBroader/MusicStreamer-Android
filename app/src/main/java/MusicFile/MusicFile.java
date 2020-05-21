@@ -1,8 +1,6 @@
 package MusicFile;
 
 import android.content.Context;
-import android.os.Environment;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -21,9 +19,7 @@ public class MusicFile implements Serializable {
     private String genre;
     private byte[] musicFileExtract;
 
-    public MusicFile() {
-
-    }
+    public MusicFile() {}
 
     public MusicFile (String trackName, String artistName, String albumInfo, String genre, byte[] musicFileExtract) {
         this.trackName = trackName;
@@ -148,15 +144,6 @@ public class MusicFile implements Serializable {
     }
 
     public static void createMP3(Context c, MusicFile m, String path) throws IOException {
-
-        File f = null;
-
-        try	{
-            f = new File(path);
-        }
-        catch (NullPointerException e) {
-            System.out.println ("Can't create file");
-        }
 
         FileOutputStream fos = null;
 

@@ -18,12 +18,7 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -32,11 +27,8 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.HashMap;
 import java.util.Random;
-
-import MusicFile.MusicFile;
 
 public class OnlineModeActivity extends Activity {
     private Button button;
@@ -50,19 +42,16 @@ public class OnlineModeActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_online_mode);
-        artistName = (EditText) findViewById(R.id.artistname);
-        button = (Button) findViewById(R.id.btn_run);
-        finalResult = (TextView) findViewById(R.id.tv_result);
-        resultFromServer = (TextView) findViewById(R.id.resultFS);
-
+        artistName = findViewById(R.id.artistname);
+        button = findViewById(R.id.btn_run);
+        finalResult = findViewById(R.id.tv_result);
+        resultFromServer = findViewById(R.id.resultFS);
         listView = findViewById(R.id.listview);
         arrayAdapter = new ArrayAdapter<>(this, R.layout.listview_layout, R.id.listRaw, new ArrayList<String>());
         listView.setAdapter(arrayAdapter);
-
     }
 
     public void onStart() {
-
         super.onStart();
 
         artistName.addTextChangedListener(new TextWatcher() {
@@ -267,15 +256,14 @@ public class OnlineModeActivity extends Activity {
     }
 
     public void loadPorts(ArrayList<String> brokers_ip, ArrayList<Integer> brokers_ports) {
-        InputStream f = null;
-        InputStreamReader isr = null;
-        BufferedReader reader = null;
+        InputStream f;
+        InputStreamReader isr;
+        BufferedReader reader;
         String line;
 
         f = getResources().openRawResource(R.raw.brokers1);
         isr = new InputStreamReader(f);
         reader = new BufferedReader(isr);
-
 
         try {
             line = reader.readLine();

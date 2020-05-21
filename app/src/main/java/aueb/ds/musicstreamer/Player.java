@@ -1,9 +1,9 @@
 package aueb.ds.musicstreamer;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -13,29 +13,23 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import androidx.annotation.RequiresApi;
-
 import MusicFile.MusicFile;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.security.spec.EncodedKeySpec;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,10 +46,11 @@ public class Player extends Activity  {
     private String songname;
     private String artist;
     private ImageView coverart;
-    private ArrayList<File> chunkFiles;
+    private SeekBar seekBar;
     private ArrayList<InputStreamDataSource> mds;
-    private  ArrayList<MusicFile> forMerge;
-    private int i = 0;
+    private ArrayList<MusicFile> forMerge;
+    private int ch = 0;
+    private boolean started = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,10 +67,10 @@ public class Player extends Activity  {
         play = findViewById(R.id.button);
         coverart = findViewById(R.id.cover);
         download = findViewById(R.id.button4);
+        seekBar = findViewById(R.id.seekBar);
         temp.setText(songname);
         art_name.setText(artist);
 
-        chunkFiles = new ArrayList<>();
         mds = new ArrayList<>();
         forMerge = new ArrayList<>();
 
@@ -97,15 +92,18 @@ public class Player extends Activity  {
             e.printStackTrace();
         }
 
-        currentPlayer = new MediaPlayer();
-        currentPlayer.setDataSource(mds.get(i));
-        try {
-            currentPlayer.prepare();
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (currentPlayer == null && !started) {
+            started = true;
+            currentPlayer = new MediaPlayer();
+            currentPlayer.setDataSource(mds.get(ch));
+            try {
+                currentPlayer.prepare();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            currentPlayer.start();
+            createNextPlayer();
         }
-        currentPlayer.start();
-        createNextPlayer();
 
         play.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -118,8 +116,21 @@ public class Player extends Activity  {
             }
         });
 
+        final Handler handler = new Handler();
+        this.runOnUiThread(new Runnable() {
+
+            @Override
+            public void run() {
+                if (currentPlayer != null){
+                    int currentPosition = currentPlayer.getCurrentPosition() / 1000;
+                    seekBar.setProgress(currentPosition);
+                }
+                handler.postDelayed(this, 1000);
+            }
+        });
+
+
         download.setOnClickListener(new View.OnClickListener() {
-            //@RequiresApi(api = Build.VERSION_CODES.O)
             @Override
             public void onClick(View v) {
                 try {
@@ -129,6 +140,22 @@ public class Player extends Activity  {
                 }
             }
         });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (currentPlayer.isPlaying()) {
+            currentPlayer.pause();
+        }
+        if (nextPlayer.isPlaying()) {
+            nextPlayer.pause();
+        }
     }
 
     private class AsyncClient extends AsyncTask<String, String, String> {
@@ -145,12 +172,11 @@ public class Player extends Activity  {
         protected String doInBackground(String... params) {
             publishProgress("Searching...", "Searching..."); // Calls onProgressUpdate()
 
+            int port = Integer.parseInt(params[2]);
+            String ip = params[3];
 
-            int PORT = Integer.parseInt(params[2]);
-            String IP = params[3];
-
-            Log.e("IP","Server>> " + IP);
-            Log.e("PORT","Server>> " + PORT);
+            Log.e("IP","Server>> " + ip);
+            Log.e("PORT","Server>> " + port);
 
             try {
                 String art_name = params[0];
@@ -161,7 +187,7 @@ public class Player extends Activity  {
                 ObjectOutputStream dos = null;
                 ObjectInputStream dis = null;
                 try {
-                    s = new Socket(IP, PORT);
+                    s = new Socket(ip, port);
                     dos = new ObjectOutputStream(s.getOutputStream());
                     dis = new ObjectInputStream(s.getInputStream());
 
@@ -192,6 +218,8 @@ public class Player extends Activity  {
                             mmr.setDataSource(isdt);
                             byte[] data = mmr.getEmbeddedPicture();
 
+                            String duration = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
+
                             if (data != null) {
                                 final Bitmap cover = BitmapFactory.decodeByteArray(data, 0, data.length);
                                 runOnUiThread(new Runnable() {
@@ -203,6 +231,7 @@ public class Player extends Activity  {
                                     }
                                 });
                             }
+                            mmr.release();
                         }
                     }
                     resp = Integer.toString(array.size());
@@ -249,15 +278,19 @@ public class Player extends Activity  {
     private void createNextPlayer() {
         try {
             nextPlayer = new MediaPlayer();
-            nextPlayer.setDataSource(mds.get(++i));
+            nextPlayer.setDataSource(mds.get(++ch));
             nextPlayer.prepare();
             currentPlayer.setNextMediaPlayer(nextPlayer);
             currentPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                 @Override
                 public void onCompletion(MediaPlayer mp) {
-                    mp.release();
-                    currentPlayer = nextPlayer;
-                    createNextPlayer();
+                    if (ch == mds.size()-1) {
+                        mp.stop();
+                    } else {
+                        mp.release();
+                        currentPlayer = nextPlayer;
+                        createNextPlayer();
+                    }
                 }
             });
         } catch (IOException e) {
@@ -275,7 +308,6 @@ public class Player extends Activity  {
 
             String path = dir.getAbsolutePath()+"/"+ songname + ".mp3";
             boolean exists = new File(path).exists();
-            Log.e("exists", String.valueOf(exists));
             if (exists) {
                 Toast.makeText(getBaseContext(), "Already downloaded.", Toast.LENGTH_LONG).show();
             } else {
@@ -294,4 +326,5 @@ public class Player extends Activity  {
         String state = Environment.getExternalStorageState();
         return Environment.MEDIA_MOUNTED.equals(state);
     }
+
 }

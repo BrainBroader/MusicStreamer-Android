@@ -66,5 +66,14 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/button" />
 
+    <SeekBar
+        android:id="@+id/seekBar"
+        android:layout_width="389dp"
+        android:layout_height="22dp"
+        app:layout_constraintBottom_toTopOf="@+id/textView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/cover" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
