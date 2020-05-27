@@ -218,7 +218,7 @@ public class Player extends Activity  {
                             mmr.setDataSource(isdt);
                             byte[] data = mmr.getEmbeddedPicture();
 
-                            String duration = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
+                            Log.e("DURATION", Long.toString(chunk.getDuration()));
 
                             if (data != null) {
                                 final Bitmap cover = BitmapFactory.decodeByteArray(data, 0, data.length);

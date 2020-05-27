@@ -17,15 +17,17 @@ public class MusicFile implements Serializable {
     private String artistName;
     private String albumInfo;
     private String genre;
+    private long duration;
     private byte[] musicFileExtract;
 
     public MusicFile() {}
 
-    public MusicFile (String trackName, String artistName, String albumInfo, String genre, byte[] musicFileExtract) {
+    public MusicFile (String trackName, String artistName, String albumInfo, String genre, long duration, byte[] musicFileExtract) {
         this.trackName = trackName;
         this.artistName = artistName;
         this.albumInfo = albumInfo;
         this.genre = genre;
+        this.duration = duration;
         this.musicFileExtract = musicFileExtract;
 
     }
@@ -60,6 +62,10 @@ public class MusicFile implements Serializable {
 
     public String getGenre() {
         return this.genre;
+    }
+
+    public long getDuration() {
+        return this.duration;
     }
 
     public void setMusicFileExtract(byte[] musicFileExtract) {
@@ -100,7 +106,7 @@ public class MusicFile implements Serializable {
                 for (int j = 0; j < a.length; j++) {
                     a[j] = array[(i * 512000) + j];
                 }
-                MusicFile m = new MusicFile(music.getTrackName(),music.getArtistName(),music.getAlbumInfo(),music.getGenre(),a);
+                MusicFile m = new MusicFile(music.getTrackName(),music.getArtistName(),music.getAlbumInfo(),music.getGenre(),music.getDuration(),a);
                 ret.add(m);
 
             } else {
@@ -108,7 +114,7 @@ public class MusicFile implements Serializable {
                 for (int j = 0; j < 512000; j++) {
                     a[j] = array[(i * 512000) + j];
                 }
-                MusicFile m = new MusicFile(music.getTrackName(),music.getArtistName(),music.getAlbumInfo(),music.getGenre(),a);
+                MusicFile m = new MusicFile(music.getTrackName(),music.getArtistName(),music.getAlbumInfo(),music.getGenre(),music.getDuration(),a);
                 ret.add(m);
             }
         }
