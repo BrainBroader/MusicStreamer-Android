@@ -14,7 +14,6 @@ import java.io.IOException;
 public class InputStreamDataSource extends MediaDataSource {
 
     private final byte[] data;
-    BufferedReader br;
 
     public InputStreamDataSource(byte[] data) {
         this.data=data;

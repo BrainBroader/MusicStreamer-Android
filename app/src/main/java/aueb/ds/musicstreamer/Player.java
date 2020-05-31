@@ -3,7 +3,8 @@ package aueb.ds.musicstreamer;
 import android.Manifest;
 import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.Intent;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -15,14 +16,15 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
-import MusicFile.MusicFile;
+
+import androidx.preference.PreferenceManager;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -32,6 +34,8 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
+
+import MusicFile.MusicFile;
 
 public class Player extends Activity  {
 
@@ -51,6 +55,7 @@ public class Player extends Activity  {
     private ArrayList<MusicFile> forMerge;
     private int ch = 0;
     private boolean started = false;
+    private int totalCurPosition = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -122,13 +127,12 @@ public class Player extends Activity  {
             @Override
             public void run() {
                 if (currentPlayer != null){
-                    int currentPosition = currentPlayer.getCurrentPosition() / 1000;
-                    seekBar.setProgress(currentPosition);
+                    seekBar.setProgress(totalCurPosition + currentPlayer.getCurrentPosition());
+                    Log.e("PROGRESS", String.valueOf(totalCurPosition + currentPlayer.getCurrentPosition()));
                 }
                 handler.postDelayed(this, 1000);
             }
         });
-
 
         download.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -152,9 +156,6 @@ public class Player extends Activity  {
         super.onPause();
         if (currentPlayer.isPlaying()) {
             currentPlayer.pause();
-        }
-        if (nextPlayer.isPlaying()) {
-            nextPlayer.pause();
         }
     }
 
@@ -219,6 +220,7 @@ public class Player extends Activity  {
                             byte[] data = mmr.getEmbeddedPicture();
 
                             Log.e("DURATION", Long.toString(chunk.getDuration()));
+                            seekBar.setMax((int)chunk.getDuration());
 
                             if (data != null) {
                                 final Bitmap cover = BitmapFactory.decodeByteArray(data, 0, data.length);
@@ -281,6 +283,7 @@ public class Player extends Activity  {
             nextPlayer.setDataSource(mds.get(++ch));
             nextPlayer.prepare();
             currentPlayer.setNextMediaPlayer(nextPlayer);
+            totalCurPosition = seekBar.getProgress();
             currentPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                 @Override
                 public void onCompletion(MediaPlayer mp) {
