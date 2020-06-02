@@ -7,4 +7,9 @@
     <string name="retry">retry</string>
     <string name="artist">Search</string>
     <string name="runasynctask">Go</string>
+    <string name="hint1"><i>Artists, songs, or podcasts</i></string>
+    <string name="hint2"><i>Type your artist...</i></string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

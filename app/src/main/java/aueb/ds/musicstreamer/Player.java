@@ -3,8 +3,6 @@ package aueb.ds.musicstreamer;
 import android.Manifest;
 import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -22,8 +20,6 @@ import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import androidx.preference.PreferenceManager;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -68,7 +64,7 @@ public class Player extends Activity  {
         artist = b.getString("artist");
 
         temp = findViewById(R.id.textView);
-        art_name = findViewById(R.id.textView2);
+        art_name = findViewById(R.id.artist);
         play = findViewById(R.id.button);
         coverart = findViewById(R.id.cover);
         download = findViewById(R.id.button4);
@@ -227,9 +223,10 @@ public class Player extends Activity  {
                                 runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
+                                        final float scale = getResources().getDisplayMetrics().density;
                                         coverart.setImageBitmap(cover);
-                                        coverart.getLayoutParams().height = 500;
-                                        coverart.getLayoutParams().width = 500;
+                                        coverart.getLayoutParams().height = (int) (250*scale);
+                                        coverart.getLayoutParams().width = (int) (250*scale);
                                     }
                                 });
                             }

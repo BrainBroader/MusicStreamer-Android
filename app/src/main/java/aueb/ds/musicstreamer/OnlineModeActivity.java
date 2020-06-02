@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
 
+
 public class OnlineModeActivity extends Activity {
     private Button button;
     private EditText artistName;
@@ -42,16 +43,24 @@ public class OnlineModeActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_online_mode);
-        artistName = findViewById(R.id.artistname);
-        button = findViewById(R.id.btn_run);
-        finalResult = findViewById(R.id.tv_result);
-        resultFromServer = findViewById(R.id.resultFS);
+
+        artistName = (EditText) findViewById(R.id.artistname);
+        artistName.requestFocus();
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.showSoftInput(artistName, InputMethodManager.SHOW_IMPLICIT);
+
+        button = (Button) findViewById(R.id.btn_run);
+        finalResult = (TextView) findViewById(R.id.tv_result);
+        resultFromServer = (TextView) findViewById(R.id.resultFS);
+
         listView = findViewById(R.id.listview);
         arrayAdapter = new ArrayAdapter<>(this, R.layout.listview_layout, R.id.listRaw, new ArrayList<String>());
         listView.setAdapter(arrayAdapter);
+
     }
 
     public void onStart() {
+
         super.onStart();
 
         artistName.addTextChangedListener(new TextWatcher() {
@@ -108,7 +117,10 @@ public class OnlineModeActivity extends Activity {
         private String resp;
         private ArrayAdapter<String> adapter;
         private ArrayList<String> output;
+        ArrayList<String> artists = new ArrayList<>();
         ProgressDialog progressDialog;
+        String IP;
+        int PORT;
 
         @Override
         protected void onPreExecute() {
@@ -128,8 +140,8 @@ public class OnlineModeActivity extends Activity {
             Random r = new Random();
             int number = r.nextInt(brokers_ip.size());
 
-            int PORT = brokers_ports.get(number);
-            String IP = brokers_ip.get(number);
+            PORT = brokers_ports.get(number);
+            IP = brokers_ip.get(number);
 
             Log.e("IP","Server>> " + IP);
             Log.e("PORT","Server>> " + PORT);
@@ -152,8 +164,6 @@ public class OnlineModeActivity extends Activity {
                     HashMap<String, String> bl = new HashMap<>();
                     bl = (HashMap<String, String>) in.readObject();
 
-
-                    ArrayList<String> artists = new ArrayList<>();
                     artists = (ArrayList<String>) in.readObject();
 
                     boolean found = false;
@@ -178,9 +188,6 @@ public class OnlineModeActivity extends Activity {
                             requestSocket.close();
                             in.close();
                             out.close();
-
-                            //this.IP = splited[0];
-                            //this.PORT = Integer.parseInt(splited[1]);
 
                             IP = splited[0];
                             PORT = Integer.parseInt(splited[1]);
@@ -229,8 +236,55 @@ public class OnlineModeActivity extends Activity {
                     }
                 }
             } catch (Exception e) {
-                e.printStackTrace();
-                //resp = e.getMessage();
+
+                /*for (int i = 0; i < brokers_ports.size(); i++) {
+                    if ((brokers_ports.get(i) == PORT) && (brokers_ip.get(i).equals(IP))) {
+                        brokers_ports.remove(i);
+                        brokers_ip.remove(i);
+                        break;
+                    }
+                }
+
+
+                Random r2 = new Random();
+                int number2 = r2.nextInt(brokers_ip.size());
+                IP = brokers_ip.get(number2);
+                PORT = brokers_ports.get(number2);
+
+                try {
+
+                    Socket requestSocket = null;
+                    ObjectOutputStream out = null;
+                    ObjectInputStream in = null;
+                    try {
+                        requestSocket = new Socket(IP, PORT);
+                        out = new ObjectOutputStream(requestSocket.getOutputStream());
+                        in = new ObjectInputStream(requestSocket.getInputStream());
+
+                        String p = "Hashing";
+                        out.writeObject(p);
+                        out.flush();
+
+                        out.writeObject(artists);
+                        out.writeObject(brokers_ip);
+                        out.writeObject(brokers_ports);
+
+
+                    } catch (UnknownHostException unknownHost) {
+                        System.err.println("You are trying to connect to an unknown host!");
+                    } catch (IOException ioException) {
+                        ioException.printStackTrace();
+                    } finally {
+                        try {
+                            in.close(); out.close();
+                            requestSocket.close();
+                        } catch (IOException ioException) {
+                            ioException.printStackTrace();
+                        }
+                    }
+                } catch (Exception e1) {
+                    e1.printStackTrace();
+                }*/
             }
             return resp;
         }
@@ -256,14 +310,15 @@ public class OnlineModeActivity extends Activity {
     }
 
     public void loadPorts(ArrayList<String> brokers_ip, ArrayList<Integer> brokers_ports) {
-        InputStream f;
-        InputStreamReader isr;
-        BufferedReader reader;
+        InputStream f = null;
+        InputStreamReader isr = null;
+        BufferedReader reader = null;
         String line;
 
         f = getResources().openRawResource(R.raw.brokers1);
         isr = new InputStreamReader(f);
         reader = new BufferedReader(isr);
+
 
         try {
             line = reader.readLine();

@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#000000"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".HomeTab">
+
+    <ImageView
+        android:id="@+id/logo"
+        android:layout_width="300dp"
+        android:layout_height="300dp"
+        android:layout_marginStart="65dp"
+        android:layout_marginTop="80dp"
+        android:layout_marginEnd="65dp"
+        android:contentDescription="@string/logo"
+        android:src="@drawable/ms2"
+        android:layout_centerHorizontal="true"
+        />
+
+    <TextView
+        android:id="@+id/online_offline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="40dp"
+        android:layout_below="@+id/logo"
+        android:text="@string/online_offline"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        android:layout_centerHorizontal="true"
+        android:textColor="#f4f4f4" />
+
+    <Switch
+        android:id="@+id/onOff_switch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="40dp"
+        android:theme="@style/SCBSwitch"
+        android:layout_below="@+id/logo"
+        android:layout_toRightOf="@+id/online_offline" />
+
+
+    <Button
+        android:id="@+id/start_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/start"
+        android:layout_below="@id/online_offline"
+        android:layout_marginTop="20dp"
+        android:layout_centerHorizontal="true"
+        />
+
+    <Button
+        android:id="@+id/retry"
+        android:layout_width="65dp"
+        android:layout_height="34dp"
+        android:background="@drawable/retry_button"
+        android:layout_marginStart="10dp"
+        android:layout_marginBottom="8dp"
+        android:text="@string/retry"
+        android:visibility="invisible"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_toRightOf="@+id/noInternet"
+        />
+
+    <TextView
+        android:id="@+id/noInternet"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:text="@string/no_internet_conn"
+        android:textColor="#f4f4f4"
+        android:visibility="invisible"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"/>
+
+
+
+
+</RelativeLayout>

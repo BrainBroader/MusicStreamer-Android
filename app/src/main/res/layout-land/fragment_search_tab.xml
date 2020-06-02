@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#000"
+    tools:context=".SearchTab">
+
+
+
+    <EditText
+        android:id="@+id/editTxt"
+        android:layout_width="fill_parent"
+        android:layout_height="40dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginTop="10dp"
+        android:background="@android:drawable/editbox_background"
+        android:focusableInTouchMode="false"
+        android:editable="false"
+        android:layout_centerVertical="true"/>
+
+    <TextView
+        android:id="@+id/textView3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="5dp"
+        android:text="@string/artist"
+        android:textColor="#f4f4f4"
+        android:textSize="10pt"
+        android:textStyle="bold"
+        android:layout_above="@id/editTxt"
+        android:layout_centerHorizontal="true"/>
+</RelativeLayout>
