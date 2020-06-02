@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class OfflinePlayer extends AppCompatActivity {
+
     private SeekBar seekBar;
     private TextView songPositionTextView;
     private TextView songDurationTextView;
@@ -27,15 +28,13 @@ public class OfflinePlayer extends AppCompatActivity {
     private ImageView coverart;
     private Button skip_next;
     private Button skip_previous;
-
     private String songname;
     private String musicPath;
     private int songPosition;
     private ArrayList<String> songList;
     private int position;
-    
     private MediaPlayer mp;
-
+    private int songDuration;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,12 +53,8 @@ public class OfflinePlayer extends AppCompatActivity {
 
         songname = b.getString("songname");
         songName.setText(songname.substring(0, songname.length() - 4));
-
         musicPath = b.getString("path");
-
         songList = (ArrayList<String>) getIntent().getSerializableExtra("songsList");
-
-
         position = b.getInt("position");
     }
 
@@ -89,9 +84,7 @@ public class OfflinePlayer extends AppCompatActivity {
             }
 
             @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
+            public void onStartTrackingTouch(SeekBar seekBar) {}
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
@@ -148,9 +141,9 @@ public class OfflinePlayer extends AppCompatActivity {
                     //coverart.getLayoutParams().width = 500;
                 }
                 playSong();
-
             }
         });
+
         skip_previous.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -186,16 +179,27 @@ public class OfflinePlayer extends AppCompatActivity {
         });
     }
 
-    private int songDuration;
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (mp.isPlaying()) {
+            mp.pause();
+        }
+    }
 
     private void playSong() {
         final String musicFilePath = musicPath;
         songDuration = playMusicFile(musicFilePath);
         seekBar.setMax(songDuration);
         if (((songDuration/1000)%60) < 10) {
-            songDurationTextView.setText(String.valueOf((songDuration / 1000)/60 + ":0"+ String.valueOf((songDuration / 1000)%60)));
+            songDurationTextView.setText((songDuration / 1000)/60 + ":0"+ (songDuration / 1000)%60);
         } else {
-            songDurationTextView.setText(String.valueOf((songDuration / 1000) / 60 + ":" + String.valueOf((songDuration / 1000) % 60)));
+            songDurationTextView.setText((songDuration / 1000) / 60 + ":" + (songDuration / 1000) % 60);
         }
 
         new Thread() {
