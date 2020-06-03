@@ -3,6 +3,8 @@ package aueb.ds.musicstreamer;
 import android.Manifest;
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -223,10 +225,11 @@ public class Player extends Activity  {
                                 runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
-                                        final float scale = getResources().getDisplayMetrics().density;
+                                        float scale = getResources().getDisplayMetrics().density;
                                         coverart.setImageBitmap(cover);
                                         coverart.getLayoutParams().height = (int) (250*scale);
                                         coverart.getLayoutParams().width = (int) (250*scale);
+
                                     }
                                 });
                             }
@@ -320,6 +323,10 @@ public class Player extends Activity  {
                 Toast.makeText(getBaseContext(), "Downloaded.", Toast.LENGTH_LONG).show();
             }
         }
+    }
+
+    public void startStreaming() {
+
     }
 
     public boolean isExternalStorageWritable() {
