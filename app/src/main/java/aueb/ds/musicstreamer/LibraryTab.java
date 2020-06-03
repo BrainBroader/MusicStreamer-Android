@@ -1,6 +1,8 @@
 package aueb.ds.musicstreamer;
 
+import android.content.Intent;
 import android.content.res.Configuration;
+import android.graphics.Color;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -8,6 +10,7 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 
 /**
@@ -24,6 +27,9 @@ public class LibraryTab extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+
+    TextView title;
+    TextView downloads;
 
     public LibraryTab() {
         // Required empty public constructor
@@ -59,8 +65,11 @@ public class LibraryTab extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_library_tab, container, false);
+
+        View view = inflater.inflate(R.layout.fragment_library_tab, container, false);
+        title = (TextView) view.findViewById(R.id.title);
+        downloads = (TextView) view.findViewById(R.id.downloads);
+        return view;
     }
 
     @Override
@@ -75,4 +84,18 @@ public class LibraryTab extends Fragment {
         View subview = inflater.inflate(R.layout.fragment_library_tab, viewGroup);
 
     }
+
+    public void onStart() {
+        super.onStart();
+
+        downloads.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent s = new Intent(view.getContext(), OfflineModeActivity.class);
+                startActivityForResult(s, 0);
+            }
+        });
+    }
+
+
 }

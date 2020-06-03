@@ -11,7 +11,7 @@
     </style>
 
     <style name="SeekTheme" parent="Theme.AppCompat.Light">
-        <item name="android:colorControlActivated">#FFFFFF</item>
+        <item name="android:colorControlActivated">#C51313</item>
         <item name="android:colorControlNormal">#9B9C9C</item>
     </style>
 

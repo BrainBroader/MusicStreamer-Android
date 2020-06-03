@@ -3,25 +3,45 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#282828"
-
+    android:background="#000"
     tools:context=".LibraryTab">
 
 
+
     <TextView
-        android:id="@+id/textView"
+        android:id="@+id/title"
+        android:text="Library"
+        android:layout_marginTop="10dp"
+        android:textSize="15pt"
+        android:textStyle="bold"
+        android:textColor="#FFF"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Library"
-        android:textColor="#fff"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginEnd="174dp"
-        android:layout_marginBottom="354dp" />
+        android:layout_marginStart="10dp"/>
 
-    <ListView
+    <TextView
+        android:id="@+id/downloads"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="50dp"
+        android:gravity="center_vertical"
+        android:layout_marginTop="30dp"
+        android:layout_marginStart="10dp"
+        android:textSize="10pt"
+        android:text="Downloads"
+        android:textColor="#FFFFFF"
+        android:layout_below="@+id/titleLine"
+        android:drawableLeft="@drawable/ic_download"
+        android:drawableRight="@drawable/ic_arrow"
+        android:clickable="true"
+        android:onClick="perform_action"/>
+
+
+    <View
+        android:id="@+id/titleLine"
+        android:layout_width="fill_parent"
+        android:layout_height="1dp"
+        android:background="#fff"
+        android:layout_below="@+id/title"/>
 
 
 </RelativeLayout>
