@@ -37,11 +37,8 @@ public class HomeTab extends Fragment {
     private String mParam1;
     private String mParam2;
 
-    Button startBtn;
-    Switch offModeSwitch;
     Button retry;
     TextView noInternet;
-    //Boolean switch_state;
 
     public HomeTab() {
         // Required empty public constructor
@@ -82,8 +79,6 @@ public class HomeTab extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home_tab, container, false);
 
-        startBtn = (Button) view.findViewById(R.id.start_btn);
-        offModeSwitch = (Switch) view.findViewById(R.id.onOff_switch);
         retry = (Button) view.findViewById(R.id.retry);
         noInternet = (TextView) view.findViewById(R.id.noInternet);
 
@@ -102,17 +97,8 @@ public class HomeTab extends Fragment {
         View subview = inflater.inflate(R.layout.fragment_home_tab, viewGroup);
     }
 
-    /*@Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-
-        outState.putBoolean("switch", offModeSwitch.isChecked());
-    }*/
-
     public void onStart() {
         super.onStart();
-
-        offModeSwitch.setChecked(!isNetworkAvailable());
 
         retry.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -123,51 +109,9 @@ public class HomeTab extends Fragment {
             }
         });
 
-        if (offModeSwitch.isChecked()) {
-            offModeSwitch.setClickable(false);
-            onlineOfflineSwitcher(true);
-            Toast.makeText(getActivity(), "Offline mode enabled.", Toast.LENGTH_SHORT).show();
+        if (!isNetworkAvailable()) {
             noInternet.setVisibility(View.VISIBLE);
             retry.setVisibility(View.VISIBLE);
-        } else {
-            if (!offModeSwitch.isChecked()) {
-                onlineOfflineSwitcher(false);
-            } else {
-                onlineOfflineSwitcher(true);
-            }
-            offModeSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    if (isChecked) {
-                        Toast.makeText(getActivity(), "Offline", Toast.LENGTH_SHORT).show();
-                        onlineOfflineSwitcher(true);
-                    } else {
-                        Toast.makeText(getActivity(), "Online", Toast.LENGTH_SHORT).show();
-                        onlineOfflineSwitcher(false);
-                    }
-                }
-            });
-        }
-    }
-
-    public void onlineOfflineSwitcher(boolean b) {
-        if (b) {
-            //switch_state = true;
-            startBtn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent s = new Intent(v.getContext(), OfflineModeActivity.class);
-                    startActivityForResult(s, 0);
-                }
-            });
-        } else {
-            //switch_state = false;
-            startBtn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.fragment, new SearchTab()).commit();
-                }
-            });
         }
     }
 
