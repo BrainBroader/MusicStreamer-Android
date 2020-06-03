@@ -19,10 +19,9 @@
 
     <Button
         android:id="@+id/retry"
-        android:layout_width="100dp"
+        android:layout_width="65dp"
         android:layout_height="37dp"
         android:layout_marginTop="18dp"
-        android:layout_marginEnd="71dp"
         android:background="@drawable/retry_button"
         android:text="@string/retry"
         android:visibility="invisible"
