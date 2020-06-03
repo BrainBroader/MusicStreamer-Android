@@ -116,7 +116,6 @@ public class OnlineModeActivity extends Activity {
         private ArrayList<String> brokers_ip = new ArrayList<>();
         private String resp;
         private ArrayAdapter<String> adapter;
-        private ArrayList<String> output;
         ArrayList<String> artists = new ArrayList<>();
         ProgressDialog progressDialog;
         String IP;
