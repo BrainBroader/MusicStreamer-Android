@@ -65,12 +65,12 @@ public class Player extends Activity  {
         PORT = b.getString("PORT");
         artist = b.getString("artist");
 
-        temp = findViewById(R.id.textView);
+        temp = findViewById(R.id.songName);
         art_name = findViewById(R.id.artist);
-        play = findViewById(R.id.button);
+        play = findViewById(R.id.pause);
         coverart = findViewById(R.id.cover);
         download = findViewById(R.id.button4);
-        seekBar = findViewById(R.id.seekBar);
+        seekBar = findViewById(R.id.seekBar2);
         temp.setText(songname);
         art_name.setText(artist);
 
@@ -89,10 +89,12 @@ public class Player extends Activity  {
         AsyncClient runner = new AsyncClient();
         runner.execute(artist, songname, PORT, IP);
 
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        while (mds.size() == 0) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
 
         if (currentPlayer == null && !started) {
