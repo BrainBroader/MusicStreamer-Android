@@ -6,6 +6,10 @@
     android:background="#000"
     tools:context=".OfflinePlayer">
 
+
+
+
+
     <TextView
         android:id="@+id/currentPosition"
         android:layout_width="wrap_content"
@@ -40,7 +44,7 @@
         android:layout_height="60dp"
         android:layout_centerHorizontal="true"
         android:layout_above="@+id/SoundBar"
-        android:layout_marginBottom="50dp"
+        android:layout_marginBottom="20dp"
         android:visibility="visible"
         android:background="@drawable/pause"/>
 
@@ -49,7 +53,7 @@
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:layout_above="@+id/SoundBar"
-        android:layout_marginBottom="60dp"
+        android:layout_marginBottom="30dp"
         android:layout_toLeftOf="@+id/pause"
         android:background="@drawable/skip_previous" />
 
@@ -60,7 +64,7 @@
         android:layout_toRightOf="@+id/pause"
         android:background="@drawable/skip_next"
         android:layout_above="@+id/SoundBar"
-        android:layout_marginBottom="60dp"/>
+        android:layout_marginBottom="30dp"/>
 
     <SeekBar
         android:id="@+id/seekBar2"

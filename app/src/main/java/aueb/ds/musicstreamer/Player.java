@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.AudioManager;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.os.AsyncTask;
@@ -18,6 +19,7 @@ import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -41,14 +43,16 @@ public class Player extends Activity  {
     private MediaPlayer nextPlayer;
     private TextView temp;
     private TextView art_name;
-    private Button play;
+    private Button play_pause;
     private Button download;
     private String IP;
     private String PORT;
     private String songname;
     private String artist;
     private ImageView coverart;
-    private SeekBar seekBar;
+    private SeekBar TimeBar;
+    private SeekBar soundBar;
+    private AudioManager audioManager;
     private ArrayList<InputStreamDataSource> mds;
     private ArrayList<MusicFile> forMerge;
     private int ch = 0;
@@ -67,12 +71,16 @@ public class Player extends Activity  {
 
         temp = findViewById(R.id.songName);
         art_name = findViewById(R.id.artist);
-        play = findViewById(R.id.pause);
+        play_pause = findViewById(R.id.play_pause);
         coverart = findViewById(R.id.cover);
-        download = findViewById(R.id.button4);
-        seekBar = findViewById(R.id.seekBar2);
+        download = findViewById(R.id.downloadBtn);
+        TimeBar = findViewById(R.id.TimeBar);
         temp.setText(songname);
         art_name.setText(artist);
+
+        //soundBar
+        soundBar = findViewById(R.id.SoundBar);
+        setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
         mds = new ArrayList<>();
         forMerge = new ArrayList<>();
@@ -110,16 +118,43 @@ public class Player extends Activity  {
             createNextPlayer();
         }
 
-        play.setOnClickListener(new View.OnClickListener() {
+        play_pause.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (currentPlayer.isPlaying()) {
-                    currentPlayer.pause();
-                } else {
+                if (!currentPlayer.isPlaying()){
                     currentPlayer.start();
+                    play_pause.setBackgroundResource(R.drawable.pause);
+                }
+                else{
+                    currentPlayer.pause();
+                    play_pause.setBackgroundResource(R.drawable.play);
                 }
             }
         });
+
+        //SoundBar
+        audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+        soundBar.setMax(audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC));
+        soundBar.setProgress(audioManager.getStreamVolume(AudioManager.STREAM_MUSIC));
+
+        soundBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean b) {
+                audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, progress, 0);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+
+
 
         final Handler handler = new Handler();
         this.runOnUiThread(new Runnable() {
@@ -127,7 +162,7 @@ public class Player extends Activity  {
             @Override
             public void run() {
                 if (currentPlayer != null){
-                    seekBar.setProgress(totalCurPosition + currentPlayer.getCurrentPosition());
+                    TimeBar.setProgress(totalCurPosition + currentPlayer.getCurrentPosition());
                     Log.e("PROGRESS", String.valueOf(totalCurPosition + currentPlayer.getCurrentPosition()));
                 }
                 handler.postDelayed(this, 1000);
@@ -216,7 +251,7 @@ public class Player extends Activity  {
                             byte[] data = mmr.getEmbeddedPicture();
 
                             Log.e("DURATION", Long.toString(chunk.getDuration()));
-                            seekBar.setMax((int)chunk.getDuration());
+                            TimeBar.setMax((int)chunk.getDuration());
 
                             if (data != null) {
                                 final Bitmap cover = BitmapFactory.decodeByteArray(data, 0, data.length);
@@ -269,7 +304,7 @@ public class Player extends Activity  {
             nextPlayer.setDataSource(mds.get(++ch));
             nextPlayer.prepare();
             currentPlayer.setNextMediaPlayer(nextPlayer);
-            totalCurPosition = seekBar.getProgress();
+            totalCurPosition = TimeBar.getProgress();
             currentPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                 @Override
                 public void onCompletion(MediaPlayer mp) {
@@ -310,6 +345,8 @@ public class Player extends Activity  {
             }
         }
     }
+
+
 
     public boolean isExternalStorageWritable() {
         String state = Environment.getExternalStorageState();
