@@ -3,8 +3,10 @@ package aueb.ds.musicstreamer;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.Activity;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.AudioManager;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -36,6 +38,8 @@ public class OfflinePlayer extends Activity {
     private int position;
     private MediaPlayer mp;
     private int songDuration;
+    private SeekBar volumeSeekbar ;
+    private AudioManager audioManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +54,10 @@ public class OfflinePlayer extends Activity {
         skip_next = findViewById(R.id.next);
         skip_previous = findViewById(R.id.previous);
 
+        setVolumeControlStream(AudioManager.STREAM_MUSIC);
+        //setContentView(R.layout.activity_offline_player);
+        initControls();
+
         Bundle b = getIntent().getExtras();
 
         songname = b.getString("songname");
@@ -57,6 +65,44 @@ public class OfflinePlayer extends Activity {
         musicPath = b.getString("path");
         songList = (ArrayList<String>) getIntent().getSerializableExtra("songsList");
         position = b.getInt("position");
+    }
+
+    private void initControls()
+    {
+        try
+        {
+            volumeSeekbar = (SeekBar)findViewById(R.id.SoundBar);
+            audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+            volumeSeekbar.setMax(audioManager
+                    .getStreamMaxVolume(AudioManager.STREAM_MUSIC));
+            volumeSeekbar.setProgress(audioManager
+                    .getStreamVolume(AudioManager.STREAM_MUSIC));
+
+
+            volumeSeekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener()
+            {
+                @Override
+                public void onStopTrackingTouch(SeekBar arg0)
+                {
+                }
+
+                @Override
+                public void onStartTrackingTouch(SeekBar arg0)
+                {
+                }
+
+                @Override
+                public void onProgressChanged(SeekBar arg0, int progress, boolean arg2)
+                {
+                    audioManager.setStreamVolume(AudioManager.STREAM_MUSIC,
+                            progress, 0);
+                }
+            });
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -138,8 +184,8 @@ public class OfflinePlayer extends Activity {
                 if (data != null) {
                     final Bitmap cover = BitmapFactory.decodeByteArray(data, 0, data.length);
                     coverart.setImageBitmap(cover);
-                    //coverart.getLayoutParams().height = 500;
-                    //coverart.getLayoutParams().width = 500;
+                } else {
+                    coverart.setImageDrawable(getDrawable(R.drawable.album));
                 }
                 playSong();
             }
@@ -174,6 +220,8 @@ public class OfflinePlayer extends Activity {
                     coverart.setImageBitmap(cover);
                     //coverart.getLayoutParams().height = 500;
                     //coverart.getLayoutParams().width = 500;
+                } else {
+                    coverart.setImageDrawable(getDrawable(R.drawable.album));
                 }
                 playSong();
             }

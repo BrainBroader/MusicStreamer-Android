@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.AudioManager;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.os.AsyncTask;
@@ -49,11 +50,17 @@ public class Player extends Activity  {
     private String artist;
     private ImageView coverart;
     private SeekBar seekBar;
+    private Button skip_next;
+    private Button skip_previous;
+    private TextView songPositionTextView;
+    private TextView songDurationTextView;
     private ArrayList<InputStreamDataSource> mds;
     private ArrayList<MusicFile> forMerge;
     private int ch = 0;
     private boolean started = false;
     private int totalCurPosition = 0;
+    private SeekBar volumeSeekbar ;
+    private AudioManager audioManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,12 +80,58 @@ public class Player extends Activity  {
         seekBar = findViewById(R.id.seekBar2);
         temp.setText(songname);
         art_name.setText(artist);
+        skip_next = findViewById(R.id.next);
+        skip_previous = findViewById(R.id.previous);
+        songPositionTextView = findViewById(R.id.currentPosition);
+        songDurationTextView = findViewById(R.id.songDuration);
+        setVolumeControlStream(AudioManager.STREAM_MUSIC);
+        //setContentView(R.layout.activity_offline_player);
+        initControls();
+
 
         mds = new ArrayList<>();
         forMerge = new ArrayList<>();
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1000);
+        }
+    }
+
+    private void initControls()
+    {
+        try
+        {
+            volumeSeekbar = (SeekBar)findViewById(R.id.SoundBar);
+            audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+            volumeSeekbar.setMax(audioManager
+                    .getStreamMaxVolume(AudioManager.STREAM_MUSIC));
+            volumeSeekbar.setProgress(audioManager
+                    .getStreamVolume(AudioManager.STREAM_MUSIC));
+
+
+            volumeSeekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener()
+            {
+                @Override
+                public void onStopTrackingTouch(SeekBar arg0)
+                {
+                }
+
+                @Override
+                public void onStartTrackingTouch(SeekBar arg0)
+                {
+                }
+
+                @Override
+                public void onProgressChanged(SeekBar arg0, int progress, boolean arg2)
+                {
+                    audioManager.setStreamVolume(AudioManager.STREAM_MUSIC,
+                            progress, 0);
+                }
+            });
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
         }
     }
 
@@ -115,8 +168,10 @@ public class Player extends Activity  {
             public void onClick(View v) {
                 if (currentPlayer.isPlaying()) {
                     currentPlayer.pause();
+                    play.setBackgroundResource(R.drawable.play);
                 } else {
                     currentPlayer.start();
+                    play.setBackgroundResource(R.drawable.pause);
                 }
             }
         });
