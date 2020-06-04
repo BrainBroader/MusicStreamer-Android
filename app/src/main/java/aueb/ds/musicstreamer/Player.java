@@ -272,6 +272,13 @@ public class Player extends Activity  {
 
                             Log.e("DURATION", Long.toString(chunk.getDuration()));
                             seekBar.setMax((int)chunk.getDuration());
+                            int songDuration = (int)chunk.getDuration();
+
+                            if (((songDuration/1000)%60) < 10) {
+                                songDurationTextView.setText((songDuration / 1000)/60 + ":0"+ (songDuration / 1000)%60);
+                            } else {
+                                songDurationTextView.setText((songDuration / 1000) / 60 + ":" + (songDuration / 1000) % 60);
+                            }
 
                             if (data != null) {
                                 final Bitmap cover = BitmapFactory.decodeByteArray(data, 0, data.length);
