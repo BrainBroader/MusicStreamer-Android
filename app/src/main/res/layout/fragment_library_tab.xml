@@ -32,8 +32,7 @@
         android:layout_below="@+id/titleLine"
         android:drawableLeft="@drawable/ic_download"
         android:drawableRight="@drawable/ic_arrow"
-        android:clickable="true"
-        android:onClick="perform_action"/>
+        android:clickable="true" />
 
 
     <View
