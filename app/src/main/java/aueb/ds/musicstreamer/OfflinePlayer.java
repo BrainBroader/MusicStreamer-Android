@@ -2,6 +2,7 @@ package aueb.ds.musicstreamer;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.MediaMetadataRetriever;
@@ -18,7 +19,7 @@ import android.widget.TextView;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class OfflinePlayer extends AppCompatActivity {
+public class OfflinePlayer extends Activity {
 
     private SeekBar seekBar;
     private TextView songPositionTextView;

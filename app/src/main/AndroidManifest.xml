@@ -27,6 +27,7 @@
         <activity android:name=".OnlineModeActivity" />
         <activity android:name=".OfflineModeActivity" />
         <activity android:name=".Player" />
+        <activity android:name=".IpAccess"/>
     </application>
 
 </manifest>

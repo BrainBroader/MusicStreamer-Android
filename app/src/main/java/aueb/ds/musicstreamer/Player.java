@@ -327,10 +327,6 @@ public class Player extends Activity  {
         }
     }
 
-    public void startStreaming() {
-
-    }
-
     public boolean isExternalStorageWritable() {
         String state = Environment.getExternalStorageState();
         return Environment.MEDIA_MOUNTED.equals(state);
