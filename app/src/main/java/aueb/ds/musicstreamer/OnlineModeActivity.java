@@ -4,8 +4,10 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -63,6 +65,14 @@ public class OnlineModeActivity extends Activity {
     public void onStart() {
 
         super.onStart();
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        String temp = prefs.getString("broker0ip",null);
+
+        if (temp == null) {
+            Intent s = new Intent(this, IpAccess.class);
+            startActivityForResult(s, 0);
+        }
 
         artistName.addTextChangedListener(new TextWatcher() {
             @Override
@@ -146,145 +156,95 @@ public class OnlineModeActivity extends Activity {
             Log.e("IP","Server>> " + IP);
             Log.e("PORT","Server>> " + PORT);
 
+
+            String art_name = params[0];
+
+            Socket requestSocket = null;
+            ObjectOutputStream out = null;
+            ObjectInputStream in = null;
             try {
-                String art_name = params[0];
+                requestSocket = new Socket(IP, PORT);
+                out = new ObjectOutputStream(requestSocket.getOutputStream());
+                in = new ObjectInputStream(requestSocket.getInputStream());
 
-                Socket requestSocket = null;
-                ObjectOutputStream out = null;
-                ObjectInputStream in = null;
-                try {
-                    requestSocket = new Socket(IP, PORT);
-                    out = new ObjectOutputStream(requestSocket.getOutputStream());
-                    in = new ObjectInputStream(requestSocket.getInputStream());
+                String p = "Consumer";
+                out.writeObject(p);
+                out.flush();
 
-                    String p = "Consumer";
-                    out.writeObject(p);
-                    out.flush();
+                HashMap<String, String> bl = new HashMap<>();
+                bl = (HashMap<String, String>) in.readObject();
 
-                    HashMap<String, String> bl = new HashMap<>();
-                    bl = (HashMap<String, String>) in.readObject();
+                artists = (ArrayList<String>) in.readObject();
 
-                    artists = (ArrayList<String>) in.readObject();
+                boolean found = false;
 
-                    boolean found = false;
-
-                    for (int i = 0; i < artists.size() ; i++) {
-                        if ((artists.get(i).toLowerCase()).equals(art_name.toLowerCase())) {
-                            art_name = artists.get(i);
-                            found = true;
-                            break;
-                        }
-                    }
-
-                    if (found == true) {
-
-                        String iportname = bl.get(art_name);
-                        resp = iportname + " "+ art_name;
-                        String[] splited = iportname.split("\\s+");
-
-
-                        if (!(splited[0].equals(IP) && (Integer.parseInt(splited[1]) == PORT))) {
-                            out.writeObject("yes");
-                            requestSocket.close();
-                            in.close();
-                            out.close();
-
-                            IP = splited[0];
-                            PORT = Integer.parseInt(splited[1]);
-                            requestSocket = new Socket(IP, PORT);
-
-                            out = new ObjectOutputStream(requestSocket.getOutputStream());
-                            in = new ObjectInputStream(requestSocket.getInputStream());
-
-                            out.writeObject("reconnect");
-
-                        } else {
-                            String exit = "no";
-                            out.writeObject(exit);
-                            out.flush();
-                        }
-
-                        out.writeObject(art_name);
-                        ArrayList<String> list = (ArrayList<String>) in.readObject();
-                        //resp = Integer.toString(list.size());
-                        for (String a : list) {
-                            publishProgress("Searching...", a.substring(0, a.length() - 4));
-                        }
-
-                    } else {
-
-                        runOnUiThread(new Runnable(){
-
-                            @Override
-                            public void run(){
-                                Toast.makeText(getBaseContext(), "Cannot find this artist.",
-                                        Toast.LENGTH_LONG).show();
-                            }
-                        });
-                    }
-
-                } catch (UnknownHostException unknownHost) {
-                    System.err.println("You are trying to connect to an unknown host!");
-                } catch (IOException ioException) {
-                    ioException.printStackTrace();
-                } finally {
-                    try {
-                        in.close(); out.close();
-                        requestSocket.close();
-                    } catch (IOException ioException) {
-                        ioException.printStackTrace();
-                    }
-                }
-            } catch (Exception e) {
-
-                /*for (int i = 0; i < brokers_ports.size(); i++) {
-                    if ((brokers_ports.get(i) == PORT) && (brokers_ip.get(i).equals(IP))) {
-                        brokers_ports.remove(i);
-                        brokers_ip.remove(i);
+                for (int i = 0; i < artists.size(); i++) {
+                    if ((artists.get(i).toLowerCase()).equals(art_name.toLowerCase())) {
+                        art_name = artists.get(i);
+                        found = true;
                         break;
                     }
                 }
 
+                if (found == true) {
 
-                Random r2 = new Random();
-                int number2 = r2.nextInt(brokers_ip.size());
-                IP = brokers_ip.get(number2);
-                PORT = brokers_ports.get(number2);
+                    String iportname = bl.get(art_name);
+                    resp = iportname + " " + art_name;
+                    String[] splited = iportname.split("\\s+");
 
-                try {
 
-                    Socket requestSocket = null;
-                    ObjectOutputStream out = null;
-                    ObjectInputStream in = null;
-                    try {
+                    if (!(splited[0].equals(IP) && (Integer.parseInt(splited[1]) == PORT))) {
+                        out.writeObject("yes");
+                        requestSocket.close();
+                        in.close();
+                        out.close();
+
+                        IP = splited[0];
+                        PORT = Integer.parseInt(splited[1]);
                         requestSocket = new Socket(IP, PORT);
+
                         out = new ObjectOutputStream(requestSocket.getOutputStream());
                         in = new ObjectInputStream(requestSocket.getInputStream());
 
-                        String p = "Hashing";
-                        out.writeObject(p);
+                        out.writeObject("reconnect");
+
+                    } else {
+                        String exit = "no";
+                        out.writeObject(exit);
                         out.flush();
-
-                        out.writeObject(artists);
-                        out.writeObject(brokers_ip);
-                        out.writeObject(brokers_ports);
-
-
-                    } catch (UnknownHostException unknownHost) {
-                        System.err.println("You are trying to connect to an unknown host!");
-                    } catch (IOException ioException) {
-                        ioException.printStackTrace();
-                    } finally {
-                        try {
-                            in.close(); out.close();
-                            requestSocket.close();
-                        } catch (IOException ioException) {
-                            ioException.printStackTrace();
-                        }
                     }
-                } catch (Exception e1) {
-                    e1.printStackTrace();
-                }*/
+
+                    out.writeObject(art_name);
+                    ArrayList<String> list = (ArrayList<String>) in.readObject();
+                    //resp = Integer.toString(list.size());
+                    for (String a : list) {
+                        publishProgress("Searching...", a.substring(0, a.length() - 4));
+                    }
+
+                } else {
+
+                    runOnUiThread(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            Toast.makeText(getBaseContext(), "Cannot find this artist.",
+                                    Toast.LENGTH_LONG).show();
+                        }
+                    });
+                }
+
+            } catch (UnknownHostException unknownHost) {
+                System.err.println("You are trying to connect to an unknown host!");
+            } catch (IOException | ClassNotFoundException ioException) {
+                ioException.printStackTrace();
+            } finally {
+                try {
+                    in.close();
+                    out.close();
+                    requestSocket.close();
+                } catch (IOException ioException) {
+                    ioException.printStackTrace();
+                }
             }
             return resp;
         }
@@ -310,30 +270,14 @@ public class OnlineModeActivity extends Activity {
     }
 
     public void loadPorts(ArrayList<String> brokers_ip, ArrayList<Integer> brokers_ports) {
-        InputStream f = null;
-        InputStreamReader isr = null;
-        BufferedReader reader = null;
-        String line;
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        int size = prefs.getInt("size",0);
 
-        f = getResources().openRawResource(R.raw.brokers1);
-        isr = new InputStreamReader(f);
-        reader = new BufferedReader(isr);
-
-
-        try {
-            line = reader.readLine();
-            while (line != null) {
-
-                String[] splited = line.split("\\s+");
-                String ip = splited[0];
-                int port = Integer.parseInt(splited[1]);
-                brokers_ports.add(port);
-                brokers_ip.add(ip);
-
-                line = reader.readLine();
-            }
-        } catch (IOException e) {
-            System.out.println("Error!!!");
+        for (int i = 0; i < size; i++) {
+            String ip = prefs.getString("broker"+i+"ip", null);
+            brokers_ip.add(ip);
+            int port = prefs.getInt("broker"+i+"port", 0);
+            brokers_ports.add(port);
         }
     }
 

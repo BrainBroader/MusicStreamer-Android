@@ -161,13 +161,9 @@ public class Player extends Activity  {
 
     private class AsyncClient extends AsyncTask<String, String, String> {
         private String resp;
-        ProgressDialog progressDialog;
+
         @Override
-        protected void onPreExecute() {
-            /*progressDialog = ProgressDialog.show(Player.this,
-                    "ProgressDialog",
-                    "Searching songs for artist "+ songname);*/
-        }
+        protected void onPreExecute() {}
 
         @Override
         protected String doInBackground(String... params) {
@@ -261,22 +257,10 @@ public class Player extends Activity  {
         }
 
         @Override
-        protected void onPostExecute(String result) {
-            // execution of result of Long time consuming operation
-            //progressDialog.dismiss();
-            //finalResult.setText("Search Complete.");
-            //chunks_num.setVisibility(View.VISIBLE);
-            //chunks_num.setText(result);
-        }
+        protected void onPostExecute(String result) {}
 
         @Override
-        protected void onProgressUpdate(String... text) {
-            /*if (text[1] == "Searching...") {
-                finalResult.setText(text[0]);
-            }*/
-
-        }
-
+        protected void onProgressUpdate(String... text) {}
     }
 
     private void createNextPlayer() {
@@ -331,5 +315,4 @@ public class Player extends Activity  {
         String state = Environment.getExternalStorageState();
         return Environment.MEDIA_MOUNTED.equals(state);
     }
-
 }
