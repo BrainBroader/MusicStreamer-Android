@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
@@ -335,4 +336,15 @@ public class OnlineModeActivity extends Activity {
             System.out.println("Error!!!");
         }
     }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event)  {
+        if (keyCode == KeyEvent.KEYCODE_BACK ) {
+            Intent s = new Intent(getBaseContext(), MainActivity.class);
+            startActivityForResult(s, 0);
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
 }
