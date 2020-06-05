@@ -61,6 +61,7 @@ public class Player extends Activity  {
     private int totalCurPosition = 0;
     private SeekBar volumeSeekbar ;
     private AudioManager audioManager;
+    private ArrayList<Integer> durations;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,46 +92,35 @@ public class Player extends Activity  {
 
         mds = new ArrayList<>();
         forMerge = new ArrayList<>();
+        durations = new ArrayList<>();
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1000);
         }
     }
 
-    private void initControls()
-    {
-        try
-        {
+    private void initControls() {
+        try {
             volumeSeekbar = (SeekBar)findViewById(R.id.SoundBar);
             audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-            volumeSeekbar.setMax(audioManager
-                    .getStreamMaxVolume(AudioManager.STREAM_MUSIC));
-            volumeSeekbar.setProgress(audioManager
-                    .getStreamVolume(AudioManager.STREAM_MUSIC));
+            volumeSeekbar.setMax(audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC));
+            volumeSeekbar.setProgress(audioManager.getStreamVolume(AudioManager.STREAM_MUSIC));
 
 
-            volumeSeekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener()
-            {
+            volumeSeekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                 @Override
-                public void onStopTrackingTouch(SeekBar arg0)
-                {
-                }
+                public void onStopTrackingTouch(SeekBar arg0) {}
 
                 @Override
-                public void onStartTrackingTouch(SeekBar arg0)
-                {
-                }
+                public void onStartTrackingTouch(SeekBar arg0) {}
 
                 @Override
-                public void onProgressChanged(SeekBar arg0, int progress, boolean arg2)
-                {
-                    audioManager.setStreamVolume(AudioManager.STREAM_MUSIC,
-                            progress, 0);
+                public void onProgressChanged(SeekBar arg0, int progress, boolean arg2) {
+                    audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, progress, 0);
                 }
             });
         }
-        catch (Exception e)
-        {
+        catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -182,24 +172,78 @@ public class Player extends Activity  {
             @Override
             public void run() {
                 if (currentPlayer != null){
-                    seekBar.setProgress(totalCurPosition + currentPlayer.getCurrentPosition());
-                    int temp = totalCurPosition + currentPlayer.getCurrentPosition();
-                    if (((temp/1000)) < 60) {
-                        if (((temp/1000)) < 10) {
-                            songPositionTextView.setText("0:0"+temp / 1000);
+                    int curPos = totalCurPosition + currentPlayer.getCurrentPosition();
+                    seekBar.setProgress(curPos);
+                    if (((curPos/1000)) < 60) {
+                        if (((curPos/1000)) < 10) {
+                            songPositionTextView.setText("0:0"+ curPos / 1000);
                         } else {
-                            songPositionTextView.setText("0:" + temp / 1000);
+                            songPositionTextView.setText("0:" + curPos / 1000);
                         }
                     } else {
-                        if (((temp/1000)%60) < 10) {
-                            songPositionTextView.setText((temp / 1000)/60 + ":0"+ (temp / 1000)%60);
+                        if (((curPos/1000)%60) < 10) {
+                            songPositionTextView.setText((curPos / 1000)/60 + ":0"+ (curPos / 1000)%60);
                         } else {
-                            songPositionTextView.setText((temp / 1000) / 60 + ":" + (temp / 1000) % 60);
+                            songPositionTextView.setText((curPos / 1000) / 60 + ":" + (curPos / 1000) % 60);
                         }
                     }
-                    Log.e("PROGRESS", String.valueOf(totalCurPosition + currentPlayer.getCurrentPosition()));
+                    //Log.e("PROGRESS", String.valueOf(totalCurPosition + currentPlayer.getCurrentPosition()));
                 }
                 handler.postDelayed(this, 1000);
+            }
+        });
+
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            int dur;
+            int chunk;
+            int startsAt;
+            boolean found;
+
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                if (b) {
+                    for (int j = 0; j < mds.size(); j++) {
+                        dur += durations.get(j);
+                        if (dur >= i) {
+                            if (j != 0) {
+                                startsAt = i % (dur - durations.get(j));
+                            } else {
+                                startsAt = i;
+                            }
+                            chunk = j;
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (found) {
+                        currentPlayer.reset();
+                        currentPlayer.setDataSource(mds.get(chunk));
+                        try {
+                            currentPlayer.prepare();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        currentPlayer.start();
+                        ch = chunk;
+                        if (chunk != mds.size() - 1) {
+                            createNextPlayer();
+                        }
+                        currentPlayer.seekTo(startsAt);
+                        seekBar.setProgress(i);
+                    }
+                }
+                Log.e("position", String.valueOf(i));
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {}
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                dur = 0;
+                chunk = 0;
+                startsAt = 0;
+                found = false;
             }
         });
 
@@ -217,7 +261,6 @@ public class Player extends Activity  {
 
     @Override
     protected void onResume() {
-
         super.onResume();
         currentPlayer.start();
     }
@@ -254,6 +297,7 @@ public class Player extends Activity  {
                 Socket s = null;
                 ObjectOutputStream dos = null;
                 ObjectInputStream dis = null;
+
                 try {
                     s = new Socket(ip, port);
                     dos = new ObjectOutputStream(s.getOutputStream());
@@ -272,6 +316,8 @@ public class Player extends Activity  {
 
                     List<MusicFile> array = new ArrayList<>();
 
+                    MediaMetadataRetriever durationTaker = new MediaMetadataRetriever();
+
                     for (int i = 0; i < chunk_size; i++) {
                         MusicFile chunk = (MusicFile) dis.readObject();
                         array.add(chunk);
@@ -279,6 +325,10 @@ public class Player extends Activity  {
                         InputStreamDataSource isdt = new InputStreamDataSource(chunk.getMusicFileExtract());
                         mds.add(isdt);
                         forMerge.add(chunk);
+
+                        durationTaker.setDataSource(isdt);
+                        int chunkDur = Integer.parseInt(durationTaker.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
+                        durations.add(chunkDur);
 
                         //taking the album cover from the first chunk
                         if (i == 0) {
