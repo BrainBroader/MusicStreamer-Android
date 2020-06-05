@@ -42,6 +42,7 @@ public class OfflinePlayer extends Activity {
     private int songDuration;
     private SeekBar soundBar;
     private AudioManager audioManager;
+    private boolean flag;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,7 +89,9 @@ public class OfflinePlayer extends Activity {
             //coverart.getLayoutParams().width = 500;
         }
 
-        playSong();
+        if(mp == null) {
+            playSong();
+        }
 
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             int songProgress;
@@ -128,10 +131,11 @@ public class OfflinePlayer extends Activity {
         skip_next.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                flag = true;
                 mp.stop();
-                mp.release();
+                //mp.release();
                 songPosition = 0;
-                //mp.seekTo(songDuration);
+                mp.seekTo(songDuration);
                 songPositionTextView.setText("0:00");
                 seekBar.setProgress(songPosition);
                 pauseButton.setBackgroundResource(R.drawable.pause);
@@ -155,6 +159,13 @@ public class OfflinePlayer extends Activity {
                 } else {
                     coverart.setImageDrawable(getDrawable(R.drawable.album));
                 }
+                while (flag == true) {
+                    try {
+                        Thread.sleep(200);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
                 playSong();
             }
         });
@@ -162,10 +173,11 @@ public class OfflinePlayer extends Activity {
         skip_previous.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                flag = true;
                 mp.stop();
-                mp.release();
+                //mp.release();
                 songPosition = 0;
-                //mp.seekTo(songDuration);
+                mp.seekTo(songDuration);
                 songPositionTextView.setText("0:00");
                 seekBar.setProgress(songPosition);
                 pauseButton.setBackgroundResource(R.drawable.pause);
@@ -186,10 +198,15 @@ public class OfflinePlayer extends Activity {
                 if (data != null) {
                     final Bitmap cover = BitmapFactory.decodeByteArray(data, 0, data.length);
                     coverart.setImageBitmap(cover);
-                    //coverart.getLayoutParams().height = 500;
-                    //coverart.getLayoutParams().width = 500;
                 } else {
                     coverart.setImageDrawable(getDrawable(R.drawable.album));
+                }
+                while (flag == true) {
+                    try {
+                        Thread.sleep(200);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }
                 playSong();
             }
@@ -221,6 +238,7 @@ public class OfflinePlayer extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
+        mp.start();
     }
 
     @Override
@@ -272,19 +290,27 @@ public class OfflinePlayer extends Activity {
                                 }
                             }
                         });
+                    } else {
+                        if (flag == true) {
+                            break;
+                        }
                     }
                 }
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        mp.pause();
-                        songPosition = 0;
-                        mp.seekTo(songPosition);
-                        songPositionTextView.setText("0:00");
-                        pauseButton.setBackgroundResource(R.drawable.play);
-                        seekBar.setProgress(songPosition);
-                    }
-                });
+                if (flag == false) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            mp.pause();
+                            songPosition = 0;
+                            mp.seekTo(songPosition);
+                            songPositionTextView.setText("0:00");
+                            pauseButton.setBackgroundResource(R.drawable.play);
+                            seekBar.setProgress(songPosition);
+                        }
+                    });
+                } else {
+                    flag = false;
+                }
             }
         }.start();
     }
