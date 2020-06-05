@@ -19,7 +19,6 @@ import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -53,6 +52,10 @@ public class Player extends Activity  {
     private SeekBar TimeBar;
     private SeekBar soundBar;
     private AudioManager audioManager;
+    private Button skip_next;
+    private Button skip_previous;
+    private TextView songPositionTextView;
+    private TextView songDurationTextView;
     private ArrayList<InputStreamDataSource> mds;
     private ArrayList<MusicFile> forMerge;
     private int ch = 0;
@@ -77,6 +80,12 @@ public class Player extends Activity  {
         TimeBar = findViewById(R.id.TimeBar);
         temp.setText(songname);
         art_name.setText(artist);
+        skip_next = findViewById(R.id.next);
+        skip_previous = findViewById(R.id.previous);
+        songPositionTextView = findViewById(R.id.currentPosition);
+        songDurationTextView = findViewById(R.id.songDuration);
+
+
 
         //soundBar
         soundBar = findViewById(R.id.SoundBar);
@@ -153,8 +162,6 @@ public class Player extends Activity  {
 
             }
         });
-
-
 
         final Handler handler = new Handler();
         this.runOnUiThread(new Runnable() {
@@ -252,6 +259,14 @@ public class Player extends Activity  {
 
                             Log.e("DURATION", Long.toString(chunk.getDuration()));
                             TimeBar.setMax((int)chunk.getDuration());
+                            TimeBar.setMax((int)chunk.getDuration());
+                            int songDuration = (int)chunk.getDuration();
+
+                            if (((songDuration/1000)%60) < 10) {
+                                songDurationTextView.setText((songDuration / 1000)/60 + ":0"+ (songDuration / 1000)%60);
+                            } else {
+                                songDurationTextView.setText((songDuration / 1000) / 60 + ":" + (songDuration / 1000) % 60);
+                            }
 
                             if (data != null) {
                                 final Bitmap cover = BitmapFactory.decodeByteArray(data, 0, data.length);
@@ -345,8 +360,6 @@ public class Player extends Activity  {
             }
         }
     }
-
-
 
     public boolean isExternalStorageWritable() {
         String state = Environment.getExternalStorageState();

@@ -152,8 +152,8 @@ public class OfflinePlayer extends Activity {
                 if (data != null) {
                     final Bitmap cover = BitmapFactory.decodeByteArray(data, 0, data.length);
                     coverart.setImageBitmap(cover);
-                    //coverart.getLayoutParams().height = 500;
-                    //coverart.getLayoutParams().width = 500;
+                } else {
+                    coverart.setImageDrawable(getDrawable(R.drawable.album));
                 }
                 playSong();
             }
@@ -188,6 +188,8 @@ public class OfflinePlayer extends Activity {
                     coverart.setImageBitmap(cover);
                     //coverart.getLayoutParams().height = 500;
                     //coverart.getLayoutParams().width = 500;
+                } else {
+                    coverart.setImageDrawable(getDrawable(R.drawable.album));
                 }
                 playSong();
             }
