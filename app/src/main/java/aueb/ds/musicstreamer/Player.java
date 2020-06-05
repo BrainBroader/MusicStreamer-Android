@@ -183,6 +183,20 @@ public class Player extends Activity  {
             public void run() {
                 if (currentPlayer != null){
                     seekBar.setProgress(totalCurPosition + currentPlayer.getCurrentPosition());
+                    int temp = totalCurPosition + currentPlayer.getCurrentPosition();
+                    if (((temp/1000)) < 60) {
+                        if (((temp/1000)) < 10) {
+                            songPositionTextView.setText("0:0"+temp / 1000);
+                        } else {
+                            songPositionTextView.setText("0:" + temp / 1000);
+                        }
+                    } else {
+                        if (((temp/1000)%60) < 10) {
+                            songPositionTextView.setText((temp / 1000)/60 + ":0"+ (temp / 1000)%60);
+                        } else {
+                            songPositionTextView.setText((temp / 1000) / 60 + ":" + (temp / 1000) % 60);
+                        }
+                    }
                     Log.e("PROGRESS", String.valueOf(totalCurPosition + currentPlayer.getCurrentPosition()));
                 }
                 handler.postDelayed(this, 1000);
