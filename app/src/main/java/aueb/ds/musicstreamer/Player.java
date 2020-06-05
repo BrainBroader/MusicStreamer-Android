@@ -203,7 +203,9 @@ public class Player extends Activity  {
 
     @Override
     protected void onResume() {
+
         super.onResume();
+        currentPlayer.start();
     }
 
     @Override
