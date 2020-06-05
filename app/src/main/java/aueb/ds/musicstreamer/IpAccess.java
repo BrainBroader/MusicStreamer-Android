@@ -5,8 +5,10 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.text.Editable;
 import android.text.InputFilter;
 import android.text.Spanned;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -45,25 +47,36 @@ public class IpAccess extends Activity {
         };
         ipInput.setFilters(new InputFilter[] {filter});
 
-        ok.setOnClickListener(new View.OnClickListener() {
+        ipInput.addTextChangedListener(new TextWatcher() {
             @Override
-            public void onClick(View view) {
-                String ips = ipInput.getText().toString();
-                String[] splited = ips.split("\\s+");
-                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-                SharedPreferences.Editor editor = prefs.edit();
-                int i = 0;
-                for (i = 0; i < splited.length; i++) {
-                    int port = 5056+i;
-                    editor.putString("broker"+i+"ip", splited[i]);
-                    editor.putInt("broker"+i+"port", port);
-                    editor.apply();
-                }
-                editor.putInt("size", i);
-                editor.apply();
-                Toast.makeText(getBaseContext(),"Done!", Toast.LENGTH_SHORT).show();
-                Intent s = new Intent(view.getContext(), OnlineModeActivity.class);
-                startActivityForResult(s, 0);
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                ok.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        String ips = ipInput.getText().toString();
+                        String[] splited = ips.split("\\s+");
+                        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+                        SharedPreferences.Editor editor = prefs.edit();
+                        int i = 0;
+                        for (i = 0; i < splited.length; i++) {
+                            int port = 5056+i;
+                            editor.putString("broker"+i+"ip", splited[i]);
+                            editor.putInt("broker"+i+"port", port);
+                            editor.apply();
+                        }
+                        editor.putInt("size", i);
+                        editor.apply();
+                        Toast.makeText(getBaseContext(),"Done!", Toast.LENGTH_SHORT).show();
+                        Intent s = new Intent(view.getContext(), OnlineModeActivity.class);
+                        startActivityForResult(s, 0);
+                    }
+                });
             }
         });
     }
