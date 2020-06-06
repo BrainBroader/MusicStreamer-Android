@@ -61,6 +61,7 @@ public class Player extends Activity  {
     private int ch = 0;
     private boolean started = false;
     private int totalCurPosition = 0;
+    private ArrayList<Integer> durations;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -141,6 +142,8 @@ public class Player extends Activity  {
             }
         });
 
+
+
         //SoundBar
         audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         soundBar.setMax(audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC));
@@ -169,10 +172,78 @@ public class Player extends Activity  {
             @Override
             public void run() {
                 if (currentPlayer != null){
-                    TimeBar.setProgress(totalCurPosition + currentPlayer.getCurrentPosition());
-                    Log.e("PROGRESS", String.valueOf(totalCurPosition + currentPlayer.getCurrentPosition()));
+                    int curPos = totalCurPosition + currentPlayer.getCurrentPosition();
+                    TimeBar.setProgress(curPos);
+                    if (((curPos/1000)) < 60) {
+                        if (((curPos/1000)) < 10) {
+                            songPositionTextView.setText("0:0"+ curPos / 1000);
+                        } else {
+                            songPositionTextView.setText("0:" + curPos / 1000);
+                        }
+                    } else {
+                        if (((curPos/1000)%60) < 10) {
+                            songPositionTextView.setText((curPos / 1000)/60 + ":0"+ (curPos / 1000)%60);
+                        } else {
+                            songPositionTextView.setText((curPos / 1000) / 60 + ":" + (curPos / 1000) % 60);
+                        }
+                    }
+                    //Log.e("PROGRESS", String.valueOf(totalCurPosition + currentPlayer.getCurrentPosition()));
                 }
                 handler.postDelayed(this, 1000);
+            }
+        });
+
+        TimeBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            int dur;
+            int chunk;
+            int startsAt;
+            boolean found;
+
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                if (b) {
+                    for (int j = 0; j < mds.size(); j++) {
+                        dur += durations.get(j);
+                        if (dur >= i) {
+                            if (j != 0) {
+                                startsAt = i % (dur - durations.get(j));
+                            } else {
+                                startsAt = i;
+                            }
+                            chunk = j;
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (found) {
+                        currentPlayer.reset();
+                        currentPlayer.setDataSource(mds.get(chunk));
+                        try {
+                            currentPlayer.prepare();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        currentPlayer.start();
+                        ch = chunk;
+                        if (chunk != mds.size() - 1) {
+                            createNextPlayer();
+                        }
+                        currentPlayer.seekTo(startsAt);
+                        seekBar.setProgress(i);
+                    }
+                }
+                Log.e("position", String.valueOf(i));
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {}
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                dur = 0;
+                chunk = 0;
+                startsAt = 0;
+                found = false;
             }
         });
 
@@ -186,7 +257,55 @@ public class Player extends Activity  {
                 }
             }
         });
+
+
+        skip_next.setOnClickListener(new View.OnClickListener(){
+
+            @Override
+            public void onClick(View view) {
+                int prog;
+
+                if(currentPlayer.getCurrentPosition() + 5000 < currentPlayer.getDuration()){
+                    prog = currentPlayer.getCurrentPosition() + 5000;
+                    currentPlayer.seekTo(prog);
+                    TimeBar.setProgress(TimeBar.getProgress() + 5000);
+                }else {
+                    prog = currentPlayer.getCurrentPosition() + 5000 - currentPlayer.getDuration();
+                    currentPlayer.seekTo(currentPlayer.getDuration());
+                    currentPlayer.seekTo(currentPlayer.getCurrentPosition() + prog);
+                    TimeBar.setProgress(TimeBar.getProgress() + prog);
+                }
+            }
+        }
+        );
+
+        skip_previous.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                int prog;
+                //if(currentPlayer.getCurrentPosition() >= 5000) {
+                    prog = currentPlayer.getCurrentPosition() - 5000;
+                    currentPlayer.seekTo(prog);
+                    TimeBar.setProgress(TimeBar.getProgress() - 5000);
+               /* }else{
+                    prog = currentPlayer.getCurrentPosition() - 5000;
+                    try {
+                        //currentPlayer.release();
+                        currentPlayer = new MediaPlayer();
+                        currentPlayer.setDataSource(mds.get(--ch));
+                        currentPlayer.prepare();
+                        currentPlayer.start();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    currentPlayer.seekTo(currentPlayer.getDuration() - prog );
+                }*/
+            }
+        });
     }
+
+
+
 
     @Override
     protected void onResume() {
@@ -201,7 +320,7 @@ public class Player extends Activity  {
         }
     }
 
-    private class AsyncClient extends AsyncTask<String, String, String> {
+    private class AsyncClient extends AsyncTask<String, String, String>  {
         private String resp;
 
         @Override
@@ -303,6 +422,8 @@ public class Player extends Activity  {
                 e.printStackTrace();
                 //resp = e.getMessage();
             }
+
+
             return resp;
         }
 
@@ -311,7 +432,11 @@ public class Player extends Activity  {
 
         @Override
         protected void onProgressUpdate(String... text) {}
+
+
     }
+
+
 
     private void createNextPlayer() {
         try {
