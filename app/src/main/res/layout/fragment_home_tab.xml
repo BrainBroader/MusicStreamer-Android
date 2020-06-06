@@ -14,7 +14,7 @@
         android:layout_height="300dp"
         android:layout_marginTop="70dp"
         android:contentDescription="@string/logo"
-        android:src="@drawable/ms2"
+        android:src="@drawable/iconinapp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
