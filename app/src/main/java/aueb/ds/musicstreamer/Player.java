@@ -89,7 +89,6 @@ public class Player extends Activity  {
         //setContentView(R.layout.activity_offline_player);
         initControls();
 
-
         mds = new ArrayList<>();
         forMerge = new ArrayList<>();
         durations = new ArrayList<>();
@@ -105,7 +104,6 @@ public class Player extends Activity  {
             audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
             volumeSeekbar.setMax(audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC));
             volumeSeekbar.setProgress(audioManager.getStreamVolume(AudioManager.STREAM_MUSIC));
-
 
             volumeSeekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                 @Override
@@ -194,14 +192,13 @@ public class Player extends Activity  {
         });
 
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            int dur;
-            int chunk;
-            int startsAt;
-            boolean found;
-
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
                 if (b) {
+                    int dur = 0;
+                    int chunk = 0;
+                    int startsAt = 0;
+                    boolean found = false;
                     for (int j = 0; j < mds.size(); j++) {
                         dur += durations.get(j);
                         if (dur >= i) {
@@ -239,11 +236,34 @@ public class Player extends Activity  {
             public void onStartTrackingTouch(SeekBar seekBar) {}
 
             @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-                dur = 0;
-                chunk = 0;
-                startsAt = 0;
-                found = false;
+            public void onStopTrackingTouch(SeekBar seekBar) {}
+        });
+
+        skip_next.setOnClickListener(new View.OnClickListener(){
+             @Override
+             public void onClick(View view) {
+                 int prog;
+
+                 if(currentPlayer.getCurrentPosition() + 5000 < currentPlayer.getDuration()){
+                     prog = currentPlayer.getCurrentPosition() + 5000;
+                     currentPlayer.seekTo(prog);
+                     seekBar.setProgress(seekBar.getProgress() + 5000);
+                 }else {
+                     prog = currentPlayer.getCurrentPosition() + 5000 - currentPlayer.getDuration();
+                     currentPlayer.seekTo(currentPlayer.getDuration());
+                     currentPlayer.seekTo(currentPlayer.getCurrentPosition() + prog);
+                     seekBar.setProgress(seekBar.getProgress() + prog);
+                 }
+             }
+        });
+
+        skip_previous.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                int prog;
+                prog = currentPlayer.getCurrentPosition() - 5000;
+                currentPlayer.seekTo(prog);
+                seekBar.setProgress(seekBar.getProgress() - 5000);
             }
         });
 
