@@ -283,6 +283,7 @@ public class Player extends Activity  {
     protected void onResume() {
         super.onResume();
         currentPlayer.start();
+        play.setBackgroundResource(R.drawable.pause);
     }
 
     @Override

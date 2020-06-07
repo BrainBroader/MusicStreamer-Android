@@ -249,6 +249,7 @@ public class OfflinePlayer extends Activity {
     protected void onResume() {
         super.onResume();
         mp.start();
+        pauseButton.setBackgroundResource(R.drawable.pause);
     }
 
     @Override
