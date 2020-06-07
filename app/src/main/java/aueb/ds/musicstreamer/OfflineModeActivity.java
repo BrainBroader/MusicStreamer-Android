@@ -84,8 +84,6 @@ public class OfflineModeActivity extends Activity {
     private void fillMusicList() {
         musicFilesList.clear();
         addMusicFilesFrom(Environment.getExternalStorageDirectory()+"/Music/Music Streamer");
-        addMusicFilesFrom(String.valueOf(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC)));
-        addMusicFilesFrom(String.valueOf(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)));
     }
 
     protected void onResume() {
