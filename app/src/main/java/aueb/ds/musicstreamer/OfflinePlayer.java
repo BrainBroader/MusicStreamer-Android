@@ -148,14 +148,14 @@ public class OfflinePlayer extends Activity {
             public void onClick(View view) {
                 if (mp.isPlaying()) {
                     mp.pause();
-                    pauseButton.setBackgroundResource(R.drawable.play);
+                    pauseButton.setBackgroundResource(R.drawable.ic_baseline_play_arrow_24);
                 } else {
                     if (songPosition == 0) {
                         playSong();
                     } else {
                         mp.start();
                     }
-                    pauseButton.setBackgroundResource(R.drawable.pause);
+                    pauseButton.setBackgroundResource(R.drawable.ic_baseline_pause_24);
                 }
             }
         });
@@ -170,7 +170,7 @@ public class OfflinePlayer extends Activity {
                 mp.seekTo(songDuration);
                 songPositionTextView.setText("0:00");
                 seekBar.setProgress(songPosition);
-                pauseButton.setBackgroundResource(R.drawable.pause);
+                pauseButton.setBackgroundResource(R.drawable.ic_baseline_pause_24);
                 if (position == songList.size()-1) {
                     position = 0;
                 } else {
@@ -212,7 +212,7 @@ public class OfflinePlayer extends Activity {
                 mp.seekTo(songDuration);
                 songPositionTextView.setText("0:00");
                 seekBar.setProgress(songPosition);
-                pauseButton.setBackgroundResource(R.drawable.pause);
+                pauseButton.setBackgroundResource(R.drawable.ic_baseline_pause_24);
                 if (position == 0) {
                     position = songList.size()-1;
                 } else {
@@ -249,7 +249,7 @@ public class OfflinePlayer extends Activity {
     protected void onResume() {
         super.onResume();
         mp.start();
-        pauseButton.setBackgroundResource(R.drawable.pause);
+        pauseButton.setBackgroundResource(R.drawable.ic_baseline_pause_24);
     }
 
     @Override
@@ -315,7 +315,7 @@ public class OfflinePlayer extends Activity {
                             songPosition = 0;
                             mp.seekTo(songPosition);
                             songPositionTextView.setText("0:00");
-                            pauseButton.setBackgroundResource(R.drawable.play);
+                            pauseButton.setBackgroundResource(R.drawable.ic_baseline_play_arrow_24);
                             seekBar.setProgress(songPosition);
                         }
                     });

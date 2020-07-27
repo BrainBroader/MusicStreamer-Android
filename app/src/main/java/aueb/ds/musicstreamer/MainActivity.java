@@ -5,16 +5,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.view.KeyEvent;
 import android.view.MenuItem;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class MainActivity extends AppCompatActivity {
-
-    //private Fragment MyFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,20 +19,10 @@ public class MainActivity extends AppCompatActivity {
         BottomNavigationView bottomNav = findViewById(R.id.bottomNavigationView);
         bottomNav.setOnNavigationItemSelectedListener(navListener);
 
-        getSupportFragmentManager().beginTransaction().replace(R.id.fragment, new HomeTab()).commit();
-
-        /*if (savedInstanceState != null) {
-            MyFragment = getSupportFragmentManager().getFragment(savedInstanceState, "myFragmentName");
-        }*/
+        if (savedInstanceState == null) {
+            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new HomeFrag()).commit();
+        }
     }
-
-    /*@Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-
-        //Save the fragment's instance
-        getSupportFragmentManager().putFragment(outState, "myFragmentName", MyFragment);
-    }*/
 
     private BottomNavigationView.OnNavigationItemSelectedListener navListener =
             new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -47,16 +32,13 @@ public class MainActivity extends AppCompatActivity {
 
                     switch (item.getItemId()) {
                         case R.id.homeTab:
-                            selectedFragment = new HomeTab();
-                            break;
-                        case R.id.searchTab:
-                            selectedFragment = new SearchTab();
+                            selectedFragment = new HomeFrag();
                             break;
                         case R.id.libraryTab:
-                            selectedFragment = new LibraryTab();
+                            selectedFragment = new LibraryFrag();
                             break;
                     }
-                    getSupportFragmentManager().beginTransaction().replace(R.id.fragment, selectedFragment).commit();
+                    getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, selectedFragment).commit();
                     return true;
                 }
     };
@@ -69,5 +51,4 @@ public class MainActivity extends AppCompatActivity {
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
     }
-
 }

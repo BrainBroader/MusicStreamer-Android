@@ -14,7 +14,6 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".OfflinePlayer"></activity>
         <activity
             android:name=".MainActivity"
             android:configChanges="orientation|keyboardHidden|screenSize|screenLayout">
@@ -24,9 +23,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".OfflinePlayer"></activity>
         <activity android:name=".OnlineModeActivity" />
-        <activity android:name=".OfflineModeActivity" />
-        <activity android:name=".Player" />
+        <activity android:name=".OnlinePlayer" />
         <activity android:name=".IpAccess"/>
     </application>
 

@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#000"
+    android:background="#FFFFFF"
     tools:context=".OnlineModeActivity">
 
     <ListView
@@ -15,41 +15,26 @@
         android:layout_above="@+id/tv_result"
         />
 
-    <TextView
-        android:id="@+id/tv_artist"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_marginLeft="10dip"
-        android:layout_marginTop="20dip"
-        android:layout_marginRight="9dip"
-        android:text="@string/artist"
-        android:textColor="#f4f4f4"
-        android:textSize="10pt"
-        android:textStyle="bold"/>
-
     <EditText
         android:id="@+id/artistname"
         android:hint="@string/hint2"
         android:layout_width="fill_parent"
         android:layout_height="40dp"
         android:layout_marginStart="10dp"
-        android:layout_below="@id/tv_artist"
         android:layout_marginTop="10dp"
-        android:background="@android:drawable/editbox_background"
         android:layout_toLeftOf="@id/btn_run"
         android:inputType="text" />
 
     <Button
         android:id="@+id/btn_run"
+        style="@style/Widget.AppCompat.Button.Borderless"
         android:layout_width="60dp"
         android:layout_height="40dp"
-        android:layout_below="@id/tv_artist"
         android:layout_alignParentRight="true"
         android:layout_marginTop="9dp"
         android:layout_marginEnd="10dp"
         android:layout_marginRight="10dp"
-        android:drawableBottom="@drawable/ic_search_black" />
+        android:drawableBottom="@drawable/ic_baseline_search_24" />
 
     <TextView
         android:id="@+id/tv_result"
@@ -74,7 +59,5 @@
         android:visibility="invisible"
         android:textColor="#f4f4f4"
         tools:visibility="invisible" />
-
-
 
 </RelativeLayout>

@@ -21,10 +21,8 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
-import java.io.BufferedReader;
+
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
@@ -96,7 +94,7 @@ public class OnlineModeActivity extends Activity {
                             @Override
                             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                                 final String songname = arrayAdapter.getItem(position);
-                                Intent s = new Intent(view.getContext(), Player.class);
+                                Intent s = new Intent(view.getContext(), OnlinePlayer.class);
                                 s.putExtra("songname", songname);
                                 String iportname = resultFromServer.getText().toString();
                                 String[] splited = iportname.split("\\s+");

@@ -109,7 +109,6 @@
             android:gravity="center_horizontal" />
 
         <Button
-            android:id="@+id/button4"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_alignParentRight="true"
@@ -142,7 +141,6 @@
             android:layout_marginBottom="50dp"/>
 
         <ImageView
-            android:id="@+id/Quiet"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/ic_volume_down"
@@ -151,7 +149,6 @@
             android:layout_marginBottom="45dp"/>
 
         <ImageView
-            android:id="@+id/bustle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/ic_volume_up"

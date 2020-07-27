@@ -1,33 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/relativeLayout3"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#000000"
-    tools:context=".HomeTab">
+    android:background="#FFFFFF"
+    tools:context=".HomeFrag">
 
-    <ImageView
-        android:id="@+id/logo"
-        android:layout_width="300dp"
-        android:layout_height="300dp"
-        android:layout_marginTop="70dp"
-        android:contentDescription="@string/logo"
-        android:src="@drawable/iconinapp"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+    <EditText
+        android:id="@+id/editTxt"
+        android:hint="@string/hint1"
+        android:gravity="center_horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="40dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginTop="10dp"
+        android:focusableInTouchMode="false"
+        android:editable="false"
+        android:layout_centerVertical="true"
+        />
 
-    <Button
-        android:id="@+id/setupBtn"
-        android:layout_width="121dp"
-        android:layout_height="65dp"
-        android:layout_marginTop="60dp"
-        android:text="@string/setup_the_connection"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/logo" />
-
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="5dp"
+        android:text="@string/artist"
+        android:textSize="15pt"
+        android:textStyle="bold"
+        android:layout_above="@id/editTxt"
+        android:layout_centerHorizontal="true"/>
+</RelativeLayout>

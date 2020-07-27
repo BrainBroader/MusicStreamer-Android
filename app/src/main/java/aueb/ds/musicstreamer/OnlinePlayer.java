@@ -36,14 +36,13 @@ import java.util.List;
 
 import MusicFile.MusicFile;
 
-public class Player extends Activity  {
+public class OnlinePlayer extends Activity  {
 
     private MediaPlayer currentPlayer;
     private MediaPlayer nextPlayer;
     private TextView temp;
     private TextView art_name;
     private Button play;
-    private Button download;
     private String IP;
     private String PORT;
     private String songname;
@@ -77,7 +76,6 @@ public class Player extends Activity  {
         art_name = findViewById(R.id.artist);
         play = findViewById(R.id.pause);
         coverart = findViewById(R.id.cover);
-        download = findViewById(R.id.button4);
         seekBar = findViewById(R.id.seekBar2);
         temp.setText(songname);
         art_name.setText(artist);
@@ -156,10 +154,10 @@ public class Player extends Activity  {
             public void onClick(View v) {
                 if (currentPlayer.isPlaying()) {
                     currentPlayer.pause();
-                    play.setBackgroundResource(R.drawable.play);
+                    play.setBackgroundResource(R.drawable.ic_baseline_play_arrow_24);
                 } else {
                     currentPlayer.start();
-                    play.setBackgroundResource(R.drawable.pause);
+                    play.setBackgroundResource(R.drawable.ic_baseline_pause_24);
                 }
             }
         });
@@ -267,13 +265,15 @@ public class Player extends Activity  {
             }
         });
 
-        download.setOnClickListener(new View.OnClickListener() {
+        coverart.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
-            public void onClick(View v) {
+            public boolean onLongClick(View v) {
                 try {
                     download();
+                    return true;
                 } catch (IOException e) {
                     e.printStackTrace();
+                    return false;
                 }
             }
         });
@@ -283,7 +283,7 @@ public class Player extends Activity  {
     protected void onResume() {
         super.onResume();
         currentPlayer.start();
-        play.setBackgroundResource(R.drawable.pause);
+        play.setBackgroundResource(R.drawable.ic_baseline_pause_24);
     }
 
     @Override
